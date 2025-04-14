@@ -394,7 +394,6 @@ document.addEventListener("DOMContentLoaded", function () {
             console.log("Vertical sync buttons NOT found!");
         }
 
-
         // Data Enable Polarity
         const dataEnableButtons = section.querySelectorAll("[data-toggle='data-enable-buttons'] .btn-option");
         if (dataEnableButtons.length > 0) {
