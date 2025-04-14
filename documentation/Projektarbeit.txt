@@ -1,0 +1,50 @@
+	Projektarbeit [1]
+
+"Entwicklung einer interaktiven Website zur Erfassung und Vereinfachung technischer Parameter
+für Automotive-Video-Projekte, unter Beachtung nötiger Abhängigkeiten."
+
+Als Grundlage dient eine PDF Datei "Video-Parameter-Checkliste", mittels welcher eine interaktive 
+Website entwickelt werden sollte. Die Website soll automatisch zur Auswahl des Kunden 
+bestimmte Felder ausfüllen. Bilder sowie Erläuterungen vereinfachen diesen 
+Prozess und machen ihn vor allem für Fachfremde übersichtlicher und effizienter.
+
+-------------------------------------------------------------------------------------------------
+
+Aufbau{
+	Deckblatt
+	Inhaltsverzeichnis
+	Vorwort
+	Ziel der Arbeit 
+	Einleitung
+	Hauptteil[
+		- theoretische Grundlagen (Fremdbegriffe, Technologien, Normen, etc)
+		- Planungsgrundlage
+		- praktische Umsetzung (Darstellung -> Ziel dieser, Wiki -> wofür, etc)
+		- Ergebnisse und Schwierigkeiten 
+	]
+	Fazit 
+}
+
+-------------------------------------------------------------------------------------------------
+
+Ziel der Arbeit:
+- Vereinfachung (gamify) der PDF
+	-> viele Kunde wissen garnicht was genau sie brauchen
+	-> verbesserte Darstellung (Bilder, Erklärungen)
+
+- Modernisierung und Optimisierung des Prozesses
+	-> PDF musste den Kunden erst gesendet werden, 
+	    wurde dann oft nur halb ausgefüllt zurückgeschickt (hin und her vermeiden)
+	-> Website 
+
+- Allgemein: 
+	-> Übung/Kennenlernen von Webdesign
+	-> Aufbau/Vertiefung des Verständnisses für die Hardware
+	-> Verantwortung übernehmen für wichtige Projekte
+	
+-------------------------------------------------------------------------------------------------
+
+
+
+
+

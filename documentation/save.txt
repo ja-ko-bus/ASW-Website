@@ -1,0 +1,219 @@
+ // pdf generator
+    function generatePDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+
+        // image string
+        const logoBase64 = 'data:image/webp;base64,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';
+    
+        // goepel logo
+        doc.addImage(logoBase64, 'PNG', 130, 6, 70, 20);
+    
+        // Get form data
+        const customerName = document.getElementById('customerName').value;
+        const contactPerson = document.getElementById('contactPerson').value;
+        const projectTitle = document.getElementById('projectTitle').value;
+        const useCase = document.getElementById('useCase').value;
+        const plannedQuantity = document.getElementById('plannedQuantity').value;
+        const testHardwareFormatInput = document.querySelector('input[name="testHardwareFormat[]"]:checked');
+        const testHardwareFormat = testHardwareFormatInput ? testHardwareFormatInput.value : 'N/A';
+        const videoInputs = document.getElementById('videoInputs').value;
+        const videoOutputs = document.getElementById('videoOutputs').value;
+        console.log(document.querySelector('input[name="testHardwareFormat[]"]:checked'));
+        
+        // Company Header
+        doc.setFontSize(12);
+        doc.text("GÖPEL electronic GmbH", 10, 10);
+
+        doc.setFontSize(8);
+        // Fax: print number in bold then label normally
+        doc.setFont("helvetica", "bold");
+        doc.text("+49 (0) 3641·68 96 944", 10, 19);
+        const faxWidth = doc.getTextWidth("+49 (0) 3641·68 96 944");
+        doc.setFont("helvetica", "normal");
+        doc.text(" Fax", 10 + faxWidth, 19);
+        
+        // Phone: print number in bold then label normally
+        doc.setFont("helvetica", "bold");
+        doc.text("+49 (0) 3641·68 96 0", 10, 23);
+        const phoneWidth = doc.getTextWidth("+49 (0) 3641·68 96 0");
+        doc.setFont("helvetica", "normal");
+        doc.text(" Phone", 10 + phoneWidth, 23);
+
+        // Email: print email in bold then label normally
+        doc.setFont("helvetica", "bold");
+        doc.text("ats.sales@goepel.com", 10, 27);
+        const emailWidth = doc.getTextWidth("ats.sales@goepel.com");
+        doc.setFont("helvetica", "normal");
+        doc.text(" Mail", 10 + emailWidth, 27);
+
+        // Continue with the rest of your header
+        doc.text("Goeschwitzer Straße 58/60 · 07745 Jena · Germany · www.goepel.com", 10, 31);
+    
+        doc.setLineWidth(0.5);
+        doc.line(10, 32, 200, 32);
+    
+        doc.setFontSize(14);
+        doc.text("Parameter-Checklist for Automotive Video Projects", 10, 40);
+        
+        // Table Data
+        const tableData = [
+            ['Customer name:', customerName],
+            ['Technical contact person (with e-mail address):', contactPerson],
+            ['Project title:', projectTitle],
+            ['Expected use case (What is the application like?):', useCase],
+            ['Planned quantity of hardware:', plannedQuantity],
+            ['Desired test hardware format:', testHardwareFormat],
+            ['Number of Video inputs on UUT:', videoInputs],
+            ['Number of Video outputs on UUT:', videoOutputs]
+        ];
+    
+        // Generate header table (customer name, contact, etc.)
+        doc.autoTable({
+            startY: 45,
+            body: tableData,
+            styles: { fontSize: 10, cellPadding: 2 },
+            columnStyles: {
+                0: { fontStyle: 'bold', cellWidth: 90 },
+                1: { cellWidth: 90 }
+            },
+            margin: { left: 20, right: 10 },
+            theme: 'grid',
+            alternateRowStyles: { fillColor: [220, 220, 220] },
+            didDrawPage: function (data) {
+                
+                const tableStartY = data.settings.startY;
+                const tableEndY = data.cursor.y;
+                const tableHeight = tableEndY - tableStartY;
+
+                //Blue Column
+                doc.setFillColor(43, 88, 141);
+                doc.rect(10, tableStartY, 10, tableHeight, 'F');
+
+                
+                doc.setFontSize(10);
+                doc.setTextColor(255, 255, 255);
+                const centerY = tableStartY + tableHeight / 2;
+                doc.text("General", 14, centerY - 10, { angle: 90 });
+                doc.text("Information", 18, centerY - 7, { angle: 90 });
+                doc.text("Technical Basics", 16, centerY + 30, { angle: 90 });
+            }
+        });
+
+        // After header table, update currentY
+        let currentY = doc.autoTable.previous.finalY + 10;
+
+        const videoSections = document.querySelectorAll('.dynamic-input-output');
+        videoSections.forEach((section, idx) => {
+            
+            if (idx > 0) {
+                doc.addPage();
+                currentY = 20; // Reset starting position for new page
+            }
+            
+            // Get header text ("UUT Video IN/OUT 1")
+            const headerEl = section.querySelector('h2');
+            const header = headerEl ? headerEl.textContent : `UUT Video IN/OUT ${idx + 1}`;
+            doc.setFontSize(12);
+            doc.text(header, 22, currentY);
+            currentY += 6;
+            
+            // Extract fields from the section
+            const icType = section.querySelector('select[name="icType[]"]')?.value || '';
+            const videoConnector = section.querySelector('.video-connector-type .btn.option.active')?.dataset.value || '';
+            const powerSupply = section.querySelector('.power-supply-buttons .btn-option.active')?.dataset.value || '';
+            const voltageCurrent = section.querySelector('.power-supply-details input[name="voltageCurrentConsumption[]"]')?.value || '';
+            const pixelClock = section.querySelector('input[name="pixelClock[]"]')?.value || '';
+            const imageWidth = section.querySelector('input[name="imageWidth[]"]')?.value || '';
+            const imageHeight = section.querySelector('input[name="imageHeight[]"]')?.value || '';
+            const frameRate = section.querySelector('input[name="frameRate[]"]')?.value || '';
+            const horizontalSync = section.querySelector('input[name="horizontalSyncPolarity[]"]:checked')?.value || '';
+            const verticalSync = section.querySelector('input[name="verticalSyncPolarity[]"]:checked')?.value || '';
+            const dataEnable = section.querySelector('input[name="dataEnablePolarity[]"]:checked')?.value || '';
+            const pixelClockPolarity = section.querySelector('input[name="pixelClockPolarity[]"]:checked')?.value || '';
+            const lockOutputEnable = section.querySelector('input[name="lockOutputEnable[]"]:checked')?.value || '';
+            const lockPolarity = section.querySelector('input[name="lockPolarity[]"]:checked')?.value || '';
+            const videoFormat = section.querySelector('input[name="videoFormat[]"]')?.value || '';
+            const numberVideoChannels = section.querySelector('input[name="numberVideoChannels"]')?.value || '';
+            const hdcpUsed = section.querySelector('input[name="hdcpUsed[]"]:checked')?.value || '';
+
+            // Sideband Communication
+            const sidebandCheckboxes = section.querySelectorAll('input[name="sideband"]:checked');
+            const sideband = sidebandCheckboxes.length
+                ? Array.from(sidebandCheckboxes).map(cb => cb.value).join('\n')
+                : '';
+
+            const chipManufacturer = section.querySelector('select[name="chipManufacturer[]"]')?.value || '';
+
+            // Chip options
+            let chipOptions = '';
+            if (chipManufacturer === 'Texas Instruments') {
+                const activeButtons = section.querySelectorAll('.fpd-options .btn.option.active');
+                chipOptions = Array.from(activeButtons).map(btn => btn.dataset.value).join(', ');
+            } else if (chipManufacturer === 'APIX') {
+                const activeButtons = section.querySelectorAll('.apix-options .btn.option.active');
+                chipOptions = Array.from(activeButtons).map(btn => btn.dataset.value).join(', ');
+            } else if (chipManufacturer === 'Maxim') {
+                const activeButtons = section.querySelectorAll('.gmsl-options .btn.option.active');
+                chipOptions = Array.from(activeButtons).map(btn => btn.dataset.value).join(', ');
+            }
+
+            // Construct table data for this UUT Video IN/OUT section
+            const videoTableData = [
+                ['IC Type', icType],
+                ['Video Connector', videoConnector],
+                ['Power Supply', powerSupply]
+            ];
+
+            // Only include Voltage/Current if powerSupply is "Yes"
+            if (powerSupply.toLowerCase() === 'yes') {
+                videoTableData.push(['Voltage/Current', voltageCurrent]);
+            }
+
+            // Exclude "Source"-related fields if IC Type is "Sink"
+            if (icType !== 'Sink') {
+                videoTableData.push(
+                    ['Pixel Clock', pixelClock],
+                    ['Image Width', imageWidth],
+                    ['Image Height', imageHeight],
+                    ['Frame Rate', frameRate],
+                    ['Horizontal Sync Polarity', horizontalSync],
+                    ['Vertical Sync Polarity', verticalSync],
+                    ['Data Enable Polarity', dataEnable],
+                    ['Pixel Clock Polarity', pixelClockPolarity],
+                    ['Lock Output Enable', lockOutputEnable],
+                    ['Lock Polarity', lockPolarity],
+                    ['Video Format', videoFormat],
+                    ['# Video Channels', numberVideoChannels],
+                    ['HDCP Used', hdcpUsed],
+                    ['Sideband', sideband],
+                    ['Chip Manufacturer', chipManufacturer]
+                );
+
+                // Include selected "Video Connector Type" if one is selected
+                if (videoConnector) {
+                    videoTableData.push(['Video Connector Type', videoConnector]);
+                }
+
+                // Chip Options
+                if (chipOptions) {
+                    videoTableData.push(['Chip Options', chipOptions]);
+                }
+            }
+
+            // Add the table to the PDF
+            doc.autoTable({
+                startY: currentY,
+                body: videoTableData,
+                styles: { fontSize: 10, cellPadding: 2 },
+                columnStyles: {
+                    0: { fontStyle: 'bold', cellWidth: 90 },
+                    1: { cellWidth: 90 }
+                },
+                margin: { left: 20, right: 20 },
+                theme: 'grid',
+                alternateRowStyles: { fillColor: [220, 220, 220] }
+            });
+
+            currentY = doc.autoTable.previous.finalY + 10;
+        });
