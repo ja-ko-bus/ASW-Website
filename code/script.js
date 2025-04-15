@@ -1201,7 +1201,238 @@ document.addEventListener("DOMContentLoaded", function () {
                                         font: sourceSansProFont,
                                         color: fontColor,
                                     });
-                                    
+
+                                    const numberVideoChannels = document.getElementById('numberVideoChannelsEditable')?.value || 'Not Provided';
+                                    secondPage.drawText(`${numberVideoChannels}`, {
+                                    x: 324,
+                                    y: 352,
+                                    size: fontSize,
+                                    font: sourceSansProFont,
+                                    color: fontColor,
+                                    });
+
+                                    const hdcpUsed = document.querySelector('input[name="hdcpUsed[]"]:checked')?.value || '';
+                                    if (hdcpUsed === 'Yes') {
+                                        secondPage.drawText('X', { 
+                                            x: 324, 
+                                            y: 334, 
+                                            size: 12, 
+                                            font: sourceSansProFont, 
+                                            color: fontColor 
+                                        });
+
+                                    } else if (hdcpUsed === 'No') {
+                                        secondPage.drawText('X', { 
+                                            x: 446, 
+                                            y: 334, 
+                                            size: 12, 
+                                            font: sourceSansProFont, 
+                                            color: fontColor 
+                                        });
+                                    }
+
+                                    // Sideband
+                                    const sidebandOptions = ['I2C', 'UART', 'SPI', 'MII', 'CAN'];
+                                    const sidebandPositions = {
+                                        'I2C': { yes: { x: 324, y: 317 }, no: { x: 446, y: 317 } },
+                                        'UART': { yes: { x: 324, y: 301 }, no: { x: 446, y: 301 } },
+                                        'SPI': { yes: { x: 324, y: 284 }, no: { x: 446, y: 284 } },
+                                        'MII': { yes: { x: 324, y: 267 }, no: { x: 446, y: 267 } },
+                                        'CAN': { yes: { x: 324, y: 250 }, no: { x: 446, y: 250 } },
+                                    };
+
+                                    sidebandOptions.forEach((option) => {
+                                        const isSelected = document.querySelector(`input[name="sideband"][value="${option}"]:checked`) !== null;
+
+                                        if (isSelected) {
+                                        secondPage.drawText('X', {
+                                            ...sidebandPositions[option].yes,
+                                            size: 12,
+                                            font: sourceSansProFont,
+                                            color: fontColor,
+                                        });
+                                        } else {
+                                            // Print 'X' for "No" position
+                                            secondPage.drawText('X', {
+                                                ...sidebandPositions[option].no,
+                                                size: 12,
+                                                font: sourceSansProFont,
+                                                color: fontColor,
+                                            });
+                                        }
+                                    });
+
+                                    // Chip Manufacturer
+                                    const chipManufacturer = document.querySelector('select[name="chipManufacturer[]"]')?.value;
+                                    if (chipManufacturer) {
+                                        const chipOptions = {
+
+                                            /* Texas Instruments */
+                                            'Texas Instruments': () => {
+                                                const fpdOptions = document.querySelectorAll('.fpd-options .btn.option.active');
+                                                if (fpdOptions.length === 0) {
+                                                    console.error('No active FPD options found.');
+                                                } else {
+                                                    fpdOptions.forEach((option) => {
+                                                        const fpdValue = option.dataset.value;
+                                                        const fdpPositions = {
+                                                            'FPD Link II': { x: 324, y: 216 },
+                                                            'FPD Link III': { x: 409, y: 216 },
+                                                            'FPD Link IV': { x: 495, y: 216 },
+                                                        };
+
+                                                        if (fdpPositions[fpdValue]) {
+                                                            secondPage.drawText('X', {
+                                                                ...fdpPositions[fpdValue],
+                                                                size: 12,
+                                                                font: sourceSansProFont,
+                                                                color: fontColor,
+                                                            });
+                                                        } else {
+                                                            console.error(`FPD value "${fpdValue}" is not in fdpPositions.`);
+                                                        }
+                                                    });
+                                                }
+
+                                                // Backward Compatible Mode
+                                                const backwardCompatibleMode = document.querySelector('.fpd-options .btn.option.active[data-value="Yes"]') ? 'Yes' : 
+                                                    document.querySelector('.fpd-options .btn.option.active[data-value="No"]') ? 'No' : 'Not Provided';
+                                                const backwardCompatiblePositions = {
+                                                    'Yes': { x: 324, y: 198 },
+                                                    'No': { x: 446, y: 198 },
+                                                };
+                                                if (backwardCompatibleMode in backwardCompatiblePositions) {
+                                                    secondPage.drawText('X', {
+                                                        ...backwardCompatiblePositions[backwardCompatibleMode],
+                                                        size: 12,
+                                                        font: sourceSansProFont,
+                                                        color: fontColor,
+                                                    });
+                                                }
+
+                                                // Low Frequency Mode
+                                                const lowFrequencyMode = document.querySelector('.fpd-options .btn.option.active[data-value="Yes"]') ? 'Yes' : 
+                                                    document.querySelector('.fpd-options .btn.option.active[data-value="No"]') ? 'No' : 'Not Provided';
+                                                const lowFrequencyPositions = {
+                                                    'Yes': { x: 324, y: 181 },
+                                                    'No': { x: 446, y: 181 },
+                                                };
+                                                if (lowFrequencyMode in lowFrequencyPositions) {
+                                                    secondPage.drawText('X', {
+                                                        ...lowFrequencyPositions[lowFrequencyMode],
+                                                        size: 12,
+                                                        font: sourceSansProFont,
+                                                        color: fontColor,
+                                                    });
+                                                }
+
+                                                // Transfer Mode
+                                                const transferMode = document.querySelector('.fpd-options .btn.option.active[data-value="Single Lane"]') ? 'Single Lane' : 
+                                                    document.querySelector('.fpd-options .btn.option.active[data-value="Dual Lane"]') ? 'Dual Lane' : 'Not Provided';
+                                                const transferModePositions = {
+                                                    'Single Lane': { x: 324, y: 164 },
+                                                    'Dual Lane': { x: 446, y: 164 },
+                                                };
+                                                if (transferMode in transferModePositions) {
+                                                    secondPage.drawText('X', {
+                                                        ...transferModePositions[transferMode],
+                                                        size: 12,
+                                                        font: sourceSansProFont,
+                                                        color: fontColor,
+                                                    });
+                                                }
+                                            },
+
+                                            /* APIX */
+                                            'APIX': () => {
+                                                const apixOptions = document.querySelectorAll('.apix-options .btn.option.active');
+
+                                                if (apixOptions.length === 0) {
+                                                    console.error('No active APIX options found.');
+                                                    return;
+                                                }
+
+                                                const apixPositions = {
+                                                    'APIX I': { x: 324, y: 216 },
+                                                    'APIX II': { x: 409, y: 216 },
+                                                    'APIX III': { x: 495, y: 216 },
+                                                };
+
+                                                apixOptions.forEach((option) => {
+                                                    const apixValue = option.dataset.value;
+                                                    if (apixPositions[apixValue]) {
+                                                        secondPage.drawText('X', {
+                                                            ...apixPositions[apixValue],
+                                                            size: 12,
+                                                            font: sourceSansProFont,
+                                                            color: fontColor,
+                                                        });
+                                                    } else {
+                                                        console.error(`APIX value "${apixValue}" is not recognized.`);
+                                                    }
+                                                });
+                                            },
+
+                                            /* Maxim */
+                                            'Maxim': () => {
+                                                const gmslOptions = document.querySelectorAll('.gmsl-options .btn.option.active');
+                                                if (gmslOptions.length === 0) {
+                                                    console.error('No active GMSL options found.');
+                                                } else {
+                                                    gmslOptions.forEach((option) => {
+                                                        const gmslValue = option.dataset.value;
+                                                        const gmslPositions = {
+                                                            'GMSL I': { x: 324, y: 216 },
+                                                            'GMSL II': { x: 409, y: 216 },
+                                                            'GMSL III': { x: 495, y: 216 },
+                                                        };
+
+                                                        if (gmslValue in gmslPositions) {
+                                                            secondPage.drawText('X', {
+                                                                ...gmslPositions[gmslValue],
+                                                                size: 12,
+                                                                font: sourceSansProFont,
+                                                                color: fontColor,
+                                                            });
+                                                        } else {
+                                                            console.error(`GMSL value "${gmslValue}" is not in gmslPositions.`);
+                                                        }
+                                                    });
+                                                }
+
+                                                // Bus Width
+                                                const busWidth = document.querySelector('.gmsl-options .btn.option.active[data-value="24 bit"]') ? '24 bit' : 
+                                                    document.querySelector('.gmsl-options .btn.option.active[data-value="32 bit"]') ? '32 bit' : 
+                                                    document.querySelector('.gmsl-options .btn.option.active[data-value="64 bit"]') ? '64 bit' : 'Not Provided';
+                                                const busWidthPositions = {
+                                                    '24 bit': { x: 324, y: 199 },
+                                                    '32 bit': { x: 409, y: 199 },
+                                                    '64 bit': { x: 495, y: 199 },
+                                                };
+                                                if (busWidth in busWidthPositions) {
+                                                    secondPage.drawText('X', {
+                                                        ...busWidthPositions[busWidth],
+                                                        size: 12,
+                                                        font: sourceSansProFont,
+                                                        color: fontColor,
+                                                    });
+                                                }
+                                            },
+                                        };
+
+                                        if (chipManufacturer in chipOptions) {
+                                            chipOptions[chipManufacturer]();
+                                        } else {
+                                            console.error(`Chip manufacturer "${chipManufacturer}" is not recognized.`);
+                                        }
+                                        } else {
+                                        console.error('No chip manufacturer selected.');
+
+
+                            
+                                }
+                            
+                               // Sink
                                 } else if (icType === 'Sink') {
                                     secondPage.drawText('Sink IC (Deserializer)', {
                                         x: 324,
@@ -1216,7 +1447,7 @@ document.addEventListener("DOMContentLoaded", function () {
                             const numberVideoChannels = document.getElementById('numberVideoChannelsEditable')?.value || 'Not Provided';
                             secondPage.drawText(`${numberVideoChannels}`, {
                                 x: 324,
-                                y: 352,
+                                y: 370,
                                 size: fontSize,
                                 font: sourceSansProFont,
                                 color: fontColor,
@@ -1520,25 +1751,42 @@ document.addEventListener("DOMContentLoaded", function () {
         const chipManufacturerSelect = document.querySelector('select[name="chipManufacturer[]"]');
         const chipManufacturer = chipManufacturerSelect?.value;
 
-        if (!chipManufacturer) {
-            chipManufacturerSelect.classList.add('error-highlight'); // Highlight the dropdown
-            const errorMessage = document.createElement('span');
-            errorMessage.classList.add('error-message');
-            errorMessage.textContent = 'Please select a valid chip manufacturer.';
-            chipManufacturerSelect.parentElement.appendChild(errorMessage);
+        const icTypeSelect = document.querySelector('select[name="icType[]"]');
+        const icType = icTypeSelect?.value;
+
+        if (!chipManufacturer || !icType) {
+            if (!chipManufacturer) {
+                chipManufacturerSelect.classList.add('error-highlight'); // Highlight the dropdown
+                const errorMessage = document.createElement('span');
+                errorMessage.classList.add('error-message');
+                errorMessage.textContent = 'Please select a valid chip manufacturer.';
+                chipManufacturerSelect.parentElement.appendChild(errorMessage);
+            }
+
+            if (!icType) {
+                icTypeSelect.classList.add('error-highlight'); // Highlight the dropdown
+                const errorMessage = document.createElement('span');
+                errorMessage.classList.add('error-message');
+                errorMessage.textContent = 'Please select Source or Sink.';
+                icTypeSelect.parentElement.appendChild(errorMessage);
+            }
+
             return null;
         } else {
             chipManufacturerSelect.classList.remove('error-highlight');
             chipManufacturerSelect.parentElement.querySelectorAll('.error-message').forEach(msg => msg.remove());
+
+            icTypeSelect.classList.remove('error-highlight');
+            icTypeSelect.parentElement.querySelectorAll('.error-message').forEach(msg => msg.remove());
         }
 
         switch (chipManufacturer) {
             case 'Texas Instruments':
-                return './files/Checklist_TexasInstruments_Source.pdf';
+                return `./files/print/Checklist_TexasInstruments_${icType}.pdf`;
             case 'APIX':
-                return './files/Checklist_Apix_Source.pdf';
+                return `./files/print/Checklist_Apix_${icType}.pdf`;
             case 'Maxim':
-                return './files/Checklist_Maxim_Source.pdf';
+                return `./files/print/Checklist_Maxim_${icType}.pdf`;
             default:
                 return null;
         }
