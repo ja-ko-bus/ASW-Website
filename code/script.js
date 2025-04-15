@@ -728,7 +728,6 @@ document.addEventListener("DOMContentLoaded", function () {
     // Ensure the submit button is properly linked to the generatePDF function
     const submitButton = document.getElementById('submitForm');
     if (submitButton) {
-
         submitButton.addEventListener('click', function () {
             // Validate required fields before showing the confirmation dialog
             const requiredFields = ['customerName', 'contactPerson', 'projectTitle', 'useCase', 'plannedQuantity'];
@@ -796,7 +795,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (!isConfirmed) {
                     return; 
                 }
-                        
+
                 const pdfUrl = getPdfUrlByChipManufacturer();
                 if (!pdfUrl) return;
 
@@ -822,9 +821,10 @@ document.addEventListener("DOMContentLoaded", function () {
                                 alert('Font file could not be loaded. Please check the file path.');
                                 return;
                             }
-                            
+
                             // Embed the font into the PDF document
                             let sourceSansProFont;
+                            try {
                             try {
                                 sourceSansProFont = await pdfDoc.embedFont(fontBytes);
                             } catch (error) {
@@ -924,18 +924,22 @@ document.addEventListener("DOMContentLoaded", function () {
                                 font: sourceSansProFont,
                                 color: fontColor,
                             });
-                            
 
-                            // Ensure the second page exists
-                            let secondPage = pages.length > 1 ? pages[1] : null;
-                            if (!secondPage) {
-                                secondPage = pdfDoc.addPage();
-                                console.warn('The PDF did not have a second page. A new page has been added.');
-                            }
-
-                            // Dynamic Sections
+                             // Dynamic Sections
                             const videoSections = document.querySelectorAll('.dynamic-input-output');
                             videoSections.forEach((section, index) => {
+                                let currentPage;
+                                if (index < pages.length) {
+                                    currentPage = pages[index + 1]; // Use existing pages starting from the second page
+                                } else {
+                                    currentPage = pdfDoc.addPage(); // Add a new page if needed
+                                }
+
+                                if (!currentPage) {
+                                    console.error(`Failed to initialize page for section ${index + 1}`);
+                                    return;
+                                }
+
                                 const inputOrOutput = section.querySelector('input[name="inputOrOutput[]"]:checked')?.value || '';
                                 const icType = section.querySelector('select[name="icType[]"]')?.value || '';
                                 const videoConnectorType = section.querySelector('.video-connector-type .btn.option.active')?.dataset.value || '';
@@ -958,7 +962,7 @@ document.addEventListener("DOMContentLoaded", function () {
                                 // Title for each section
                                 const sectionTitle = `UUT Video IN/OUT ${index + 1}`;
                                 const yPosition = 710;
-                                secondPage.drawText(sectionTitle, {
+                                currentPage.drawText(sectionTitle, {
                                     x: 90, 
                                     y: yPosition, 
                                     size: 14,
@@ -968,7 +972,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
                                 // input/output
                                 if (inputOrOutput === 'Input') {
-                                    secondPage.drawText('X', { 
+                                    currentPage.drawText('X', { 
                                         x: 90, 
                                         y: 693, 
                                         size: 12, 
@@ -976,7 +980,7 @@ document.addEventListener("DOMContentLoaded", function () {
                                         font: sourceSansProFont,
                                     });
                                 } else if (inputOrOutput === 'Output') {
-                                    secondPage.drawText('X', { 
+                                    currentPage.drawText('X', { 
                                         x: 324, 
                                         y: 691, 
                                         size: 12, 
@@ -987,7 +991,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
                                 // IC Type
                                 if (icType === 'Source') {
-                                    secondPage.drawText('Source (Serializer)', {
+                                    currentPage.drawText('Source (Serializer)', {
                                         x: 324,
                                         y: 676,
                                         size: fontSize,
@@ -997,7 +1001,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
                                     // Video Connector Type
                                     const connectorText = videoConnectorType === 'Other' ? otherText : videoConnectorType;
-                                    secondPage.drawText(`${connectorText}`, {
+                                    currentPage.drawText(`${connectorText}`, {
                                         x: 324,
                                         y: 659,
                                         size: fontSize,
@@ -1007,7 +1011,7 @@ document.addEventListener("DOMContentLoaded", function () {
                                     
                                     // Pinning of video connector
                                     if (pinningConnector) {
-                                        secondPage.drawText(`${pinningConnector}`, {
+                                        currentPage.drawText(`${pinningConnector}`, {
                                             x: 324,
                                             y: 631,
                                             size: fontSize,
@@ -1018,14 +1022,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
                                     // Power Supply
                                     if (powerSupply === 'Yes') {
-                                        secondPage.drawText('X', { 
+                                        currentPage.drawText('X', { 
                                             x: 324, 
                                             y: 555, 
                                             size: 12, 
                                             font: sourceSansProFont, 
                                             color: fontColor 
                                         });
-                                        secondPage.drawText(`Voltage/Current: ${voltageCurrent}`, {
+                                        currentPage.drawText(`Voltage/Current: ${voltageCurrent}`, {
                                             x: 345,
                                             y: 558,
                                             size: 7,
@@ -1033,7 +1037,7 @@ document.addEventListener("DOMContentLoaded", function () {
                                             color: fontColor,
                                         });
                                     } else if (powerSupply === 'No') {
-                                        secondPage.drawText('X', { 
+                                        currentPage.drawText('X', { 
                                             x: 450, 
                                             y: 555, 
                                             size: 12, 
@@ -1044,7 +1048,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
                                     /* Video Parameters*/
                                     // Pixel Clock
-                                    secondPage.drawText(`${pixelClock}`, {
+                                    currentPage.drawText(`${pixelClock}`, {
                                         x: 324,
                                         y: 540,
                                         size: fontSize,
@@ -1053,7 +1057,7 @@ document.addEventListener("DOMContentLoaded", function () {
                                     });
 
                                     // Image Width
-                                    secondPage.drawText(`${imageWidth}`, {
+                                    currentPage.drawText(`${imageWidth}`, {
                                         x: 324,
                                         y: 523,
                                         size: fontSize,
@@ -1062,7 +1066,7 @@ document.addEventListener("DOMContentLoaded", function () {
                                     });
 
                                     // Image Height
-                                    secondPage.drawText(`${imageHeight}`, {
+                                    currentPage.drawText(`${imageHeight}`, {
                                         x: 324,
                                         y: 506,
                                         size: fontSize,
@@ -1071,7 +1075,7 @@ document.addEventListener("DOMContentLoaded", function () {
                                     });
 
                                     // Frame Rate
-                                    secondPage.drawText(`${frameRate}`, {
+                                    currentPage.drawText(`${frameRate}`, {
                                         x: 324,
                                         y: 489,
                                         size: fontSize,
@@ -1081,7 +1085,7 @@ document.addEventListener("DOMContentLoaded", function () {
                                     
                                     // Horizontal Sync Polarity
                                     if (horizontalSync === 'High') {
-                                        secondPage.drawText('X', { 
+                                        currentPage.drawText('X', { 
                                             x: 324, 
                                             y: 470, 
                                             size: 12, 
@@ -1089,7 +1093,7 @@ document.addEventListener("DOMContentLoaded", function () {
                                             color: fontColor 
                                         });
                                     } else if (horizontalSync === 'Low') {
-                                        secondPage.drawText('X', { 
+                                        currentPage.drawText('X', { 
                                             x: 446, 
                                             y: 470, 
                                             size: 12, 
@@ -1100,7 +1104,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
                                     // Vertical Sync Polarity
                                     if (verticalSync === 'High') {
-                                        secondPage.drawText('X', { 
+                                        currentPage.drawText('X', { 
                                             x: 324, 
                                             y: 453, 
                                             size: 12, 
@@ -1108,7 +1112,7 @@ document.addEventListener("DOMContentLoaded", function () {
                                             color: fontColor 
                                         });
                                     } else if (verticalSync === 'Low') {
-                                        secondPage.drawText('X', { 
+                                        currentPage.drawText('X', { 
                                             x: 446, 
                                             y: 453, 
                                             size: 12, 
@@ -1119,7 +1123,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
                                     // Data Enable Polarity
                                     if (dataEnable === 'High') {
-                                        secondPage.drawText('X', { 
+                                        currentPage.drawText('X', { 
                                             x: 324, 
                                             y: 436, 
                                             size: 12, 
@@ -1127,7 +1131,7 @@ document.addEventListener("DOMContentLoaded", function () {
                                             color: fontColor 
                                         });
                                     } else if (dataEnable === 'Low') {
-                                        secondPage.drawText('X', { 
+                                        currentPage.drawText('X', { 
                                             x: 446, 
                                             y: 436, 
                                             size: 12, 
@@ -1138,7 +1142,7 @@ document.addEventListener("DOMContentLoaded", function () {
                                     
                                     // Pixel Clock Polarity
                                     if (pixelClockPolarity === 'High') {
-                                        secondPage.drawText('X', { 
+                                        currentPage.drawText('X', { 
                                             x: 324, 
                                             y: 419, 
                                             size: 12, 
@@ -1146,7 +1150,7 @@ document.addEventListener("DOMContentLoaded", function () {
                                             color: fontColor 
                                         });
                                     } else if (pixelClockPolarity === 'Low') {
-                                        secondPage.drawText('X', { 
+                                        currentPage.drawText('X', { 
                                             x: 446, 
                                             y: 419, 
                                             size: 12, 
@@ -1157,7 +1161,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
                                     // Lock Output Enable
                                     if (lockOutputEnable === 'High') {
-                                        secondPage.drawText('X', { 
+                                        currentPage.drawText('X', { 
                                             x: 324, 
                                             y: 402, 
                                             size: 12, 
@@ -1165,7 +1169,7 @@ document.addEventListener("DOMContentLoaded", function () {
                                             color: fontColor 
                                         });
                                     } else if (lockOutputEnable === 'Low') {
-                                        secondPage.drawText('X', { 
+                                        currentPage.drawText('X', { 
                                             x: 446, 
                                             y: 402, 
                                             size: 12, 
@@ -1173,10 +1177,10 @@ document.addEventListener("DOMContentLoaded", function () {
                                             color: fontColor 
                                         });
                                     }
-                                    
+
                                     // Lock Polarity
                                     if (lockPolarity === 'High') {
-                                        secondPage.drawText('X', { 
+                                        currentPage.drawText('X', { 
                                             x: 324, 
                                             y: 385, 
                                             size: 12, 
@@ -1184,7 +1188,7 @@ document.addEventListener("DOMContentLoaded", function () {
                                             color: fontColor 
                                         });
                                     } else if (lockPolarity === 'Low') {
-                                        secondPage.drawText('X', { 
+                                        currentPage.drawText('X', { 
                                             x: 446, 
                                             y: 385, 
                                             size: 12, 
@@ -1194,7 +1198,7 @@ document.addEventListener("DOMContentLoaded", function () {
                                     }
 
                                     // Video Format
-                                    secondPage.drawText(`${videoFormat}`, {
+                                    currentPage.drawText(`${videoFormat}`, {
                                         x: 324,
                                         y: 370,
                                         size: fontSize,
@@ -1203,7 +1207,7 @@ document.addEventListener("DOMContentLoaded", function () {
                                     });
 
                                     const numberVideoChannels = document.getElementById('numberVideoChannelsEditable')?.value || 'Not Provided';
-                                    secondPage.drawText(`${numberVideoChannels}`, {
+                                    currentPage.drawText(`${numberVideoChannels}`, {
                                     x: 324,
                                     y: 352,
                                     size: fontSize,
@@ -1213,7 +1217,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
                                     const hdcpUsed = document.querySelector('input[name="hdcpUsed[]"]:checked')?.value || '';
                                     if (hdcpUsed === 'Yes') {
-                                        secondPage.drawText('X', { 
+                                        currentPage.drawText('X', { 
                                             x: 324, 
                                             y: 334, 
                                             size: 12, 
@@ -1222,7 +1226,7 @@ document.addEventListener("DOMContentLoaded", function () {
                                         });
 
                                     } else if (hdcpUsed === 'No') {
-                                        secondPage.drawText('X', { 
+                                        currentPage.drawText('X', { 
                                             x: 446, 
                                             y: 334, 
                                             size: 12, 
@@ -1245,7 +1249,7 @@ document.addEventListener("DOMContentLoaded", function () {
                                         const isSelected = document.querySelector(`input[name="sideband"][value="${option}"]:checked`) !== null;
 
                                         if (isSelected) {
-                                        secondPage.drawText('X', {
+                                        currentPage.drawText('X', {
                                             ...sidebandPositions[option].yes,
                                             size: 12,
                                             font: sourceSansProFont,
@@ -1253,7 +1257,7 @@ document.addEventListener("DOMContentLoaded", function () {
                                         });
                                         } else {
                                             // Print 'X' for "No" position
-                                            secondPage.drawText('X', {
+                                            currentPage.drawText('X', {
                                                 ...sidebandPositions[option].no,
                                                 size: 12,
                                                 font: sourceSansProFont,
@@ -1282,7 +1286,7 @@ document.addEventListener("DOMContentLoaded", function () {
                                                         };
 
                                                         if (fdpPositions[fpdValue]) {
-                                                            secondPage.drawText('X', {
+                                                            currentPage.drawText('X', {
                                                                 ...fdpPositions[fpdValue],
                                                                 size: 12,
                                                                 font: sourceSansProFont,
@@ -1302,7 +1306,7 @@ document.addEventListener("DOMContentLoaded", function () {
                                                     'No': { x: 446, y: 198 },
                                                 };
                                                 if (backwardCompatibleMode in backwardCompatiblePositions) {
-                                                    secondPage.drawText('X', {
+                                                    currentPage.drawText('X', {
                                                         ...backwardCompatiblePositions[backwardCompatibleMode],
                                                         size: 12,
                                                         font: sourceSansProFont,
@@ -1318,7 +1322,7 @@ document.addEventListener("DOMContentLoaded", function () {
                                                     'No': { x: 446, y: 181 },
                                                 };
                                                 if (lowFrequencyMode in lowFrequencyPositions) {
-                                                    secondPage.drawText('X', {
+                                                    currentPage.drawText('X', {
                                                         ...lowFrequencyPositions[lowFrequencyMode],
                                                         size: 12,
                                                         font: sourceSansProFont,
@@ -1334,7 +1338,7 @@ document.addEventListener("DOMContentLoaded", function () {
                                                     'Dual Lane': { x: 446, y: 164 },
                                                 };
                                                 if (transferMode in transferModePositions) {
-                                                    secondPage.drawText('X', {
+                                                    currentPage.drawText('X', {
                                                         ...transferModePositions[transferMode],
                                                         size: 12,
                                                         font: sourceSansProFont,
@@ -1361,7 +1365,7 @@ document.addEventListener("DOMContentLoaded", function () {
                                                 apixOptions.forEach((option) => {
                                                     const apixValue = option.dataset.value;
                                                     if (apixPositions[apixValue]) {
-                                                        secondPage.drawText('X', {
+                                                        currentPage.drawText('X', {
                                                             ...apixPositions[apixValue],
                                                             size: 12,
                                                             font: sourceSansProFont,
@@ -1388,7 +1392,7 @@ document.addEventListener("DOMContentLoaded", function () {
                                                         };
 
                                                         if (gmslValue in gmslPositions) {
-                                                            secondPage.drawText('X', {
+                                                            currentPage.drawText('X', {
                                                                 ...gmslPositions[gmslValue],
                                                                 size: 12,
                                                                 font: sourceSansProFont,
@@ -1410,7 +1414,7 @@ document.addEventListener("DOMContentLoaded", function () {
                                                     '64 bit': { x: 495, y: 199 },
                                                 };
                                                 if (busWidth in busWidthPositions) {
-                                                    secondPage.drawText('X', {
+                                                    currentPage.drawText('X', {
                                                         ...busWidthPositions[busWidth],
                                                         size: 12,
                                                         font: sourceSansProFont,
@@ -1426,68 +1430,82 @@ document.addEventListener("DOMContentLoaded", function () {
                                             console.error(`Chip manufacturer "${chipManufacturer}" is not recognized.`);
                                         }
                                         } else {
-                                        console.error('No chip manufacturer selected.');
+                                            console.error('No chip manufacturer selected.');
+                                        }
 
+                                        // Additional Information
+                                        const additionalInformation = document.getElementById('useCase')?.value || 'Additional Information Not Provided';
+                                        const additionalInfoPositions = {
+                                            'Texas Instruments': { x: 324, y: 148 },
+                                            'APIX': { x: 324, y: 197 },
+                                            'Maxim': { x: 324, y: 180 },
+                                        };
 
-                            
-                                }
-                            
-                               // Sink
-                                } else if (icType === 'Sink') {
-                                    secondPage.drawText('Sink IC (Deserializer)', {
+                                        if (chipManufacturer in additionalInfoPositions) {
+                                            currentPage.drawText(`${additionalInformation}`, {
+                                                ...additionalInfoPositions[chipManufacturer],
+                                                size: 10,
+                                                font: sourceSansProFont,
+                                                color: fontColor,
+                                            });
+                                        } else {
+                                            console.error(`Chip manufacturer "${chipManufacturer}" is not recognized.`);
+                                        } 
+                                    
+                                    // SinkIC 
+                                    } else {
+                                    currentPage.drawText('Sink IC (Deserializer)', {
                                         x: 324,
                                         y: 676,
                                         size: fontSize,
                                         font: sourceSansProFont,
                                         color: fontColor,
                                     });
-                                }
-                            });
 
-                            const numberVideoChannels = document.getElementById('numberVideoChannelsEditable')?.value || 'Not Provided';
-                            secondPage.drawText(`${numberVideoChannels}`, {
-                                x: 324,
-                                y: 370,
-                                size: fontSize,
-                                font: sourceSansProFont,
-                                color: fontColor,
-                            });
+                                    const numberVideoChannels = document.getElementById('numberVideoChannelsEditable')?.value || 'Not Provided';
+                                    currentPage.drawText(`${numberVideoChannels}`, {
+                                        x: 324,
+                                        y: 659,
+                                        size: fontSize,
+                                        font: sourceSansProFont,
+                                        color: fontColor,
+                                    });
 
-                            const hdcpUsed = document.querySelector('input[name="hdcpUsed[]"]:checked')?.value || '';
-                            if (hdcpUsed === 'Yes') {
-                                secondPage.drawText('X', { 
-                                    x: 324, 
-                                    y: 334, 
-                                    size: 12, 
-                                    font: sourceSansProFont, 
-                                    color: fontColor 
-                                });
+                                    const hdcpUsed = document.querySelector('input[name="hdcpUsed[]"]:checked')?.value || '';
+                                    if (hdcpUsed === 'Yes') {
+                                        currentPage.drawText('X', { 
+                                            x: 324, 
+                                            y: 641, 
+                                            size: 12, 
+                                            font: sourceSansProFont, 
+                                            color: fontColor 
+                                        });
 
-                            } else if (hdcpUsed === 'No') {
-                                secondPage.drawText('X', { 
-                                    x: 446, 
-                                    y: 334, 
-                                    size: 12, 
-                                    font: sourceSansProFont, 
-                                    color: fontColor 
-                                });
-                            }
+                                    } else if (hdcpUsed === 'No') {
+                                        currentPage.drawText('X', { 
+                                            x: 446, 
+                                            y: 641, 
+                                            size: 12, 
+                                            font: sourceSansProFont, 
+                                            color: fontColor 
+                                        });
+                                    }
 
-                            // Sideband
-                            const sidebandOptions = ['I2C', 'UART', 'SPI', 'MII', 'CAN'];
-                            const sidebandPositions = {
-                                'I2C': { yes: { x: 324, y: 317 }, no: { x: 446, y: 317 } },
-                                'UART': { yes: { x: 324, y: 301 }, no: { x: 446, y: 301 } },
-                                'SPI': { yes: { x: 324, y: 284 }, no: { x: 446, y: 284 } },
-                                'MII': { yes: { x: 324, y: 267 }, no: { x: 446, y: 267 } },
-                                'CAN': { yes: { x: 324, y: 250 }, no: { x: 446, y: 250 } },
-                            };
+                                    // Sideband
+                                    const sidebandOptions = ['I2C', 'UART', 'SPI', 'MII', 'CAN'];
+                                    const sidebandPositions = {
+                                        'I2C': { yes: { x: 324, y: 624 }, no: { x: 446, y: 624 } },
+                                        'UART': { yes: { x: 324, y: 608 }, no: { x: 446, y: 608 } },
+                                        'SPI': { yes: { x: 324, y: 591 }, no: { x: 446, y: 591 } },
+                                        'MII': { yes: { x: 324, y: 574 }, no: { x: 446, y: 574 } },
+                                        'CAN': { yes: { x: 324, y: 557 }, no: { x: 446, y: 557 } },
+                                    };
 
-                            sidebandOptions.forEach((option) => {
+                                sidebandOptions.forEach((option) => {
                                 const isSelected = document.querySelector(`input[name="sideband"][value="${option}"]:checked`) !== null;
 
                                 if (isSelected) {
-                                secondPage.drawText('X', {
+                                currentPage.drawText('X', {
                                     ...sidebandPositions[option].yes,
                                     size: 12,
                                     font: sourceSansProFont,
@@ -1495,19 +1513,19 @@ document.addEventListener("DOMContentLoaded", function () {
                                 });
                                 } else {
                                     // Print 'X' for "No" position
-                                    secondPage.drawText('X', {
+                                    currentPage.drawText('X', {
                                         ...sidebandPositions[option].no,
                                         size: 12,
                                         font: sourceSansProFont,
                                         color: fontColor,
-                                    });
-                                }
-                            });
+                                        });
+                                    }
+                                });
 
-                            // Chip Manufacturer
-                            const chipManufacturer = document.querySelector('select[name="chipManufacturer[]"]')?.value;
-                            if (chipManufacturer) {
-                                const chipOptions = {
+                                // Chip Manufacturer
+                                const chipManufacturer = document.querySelector('select[name="chipManufacturer[]"]')?.value;
+                                if (chipManufacturer) {
+                                    const chipOptions = {
 
                                     /* Texas Instruments */
                                     'Texas Instruments': () => {
@@ -1518,13 +1536,13 @@ document.addEventListener("DOMContentLoaded", function () {
                                             fpdOptions.forEach((option) => {
                                                 const fpdValue = option.dataset.value;
                                                 const fdpPositions = {
-                                                    'FPD Link II': { x: 324, y: 216 },
-                                                    'FPD Link III': { x: 409, y: 216 },
-                                                    'FPD Link IV': { x: 495, y: 216 },
+                                                    'FPD Link II': { x: 324, y: 523 },
+                                                    'FPD Link III': { x: 409, y: 523 },
+                                                    'FPD Link IV': { x: 495, y: 523 },
                                                 };
 
                                                 if (fdpPositions[fpdValue]) {
-                                                    secondPage.drawText('X', {
+                                                    currentPage.drawText('X', {
                                                         ...fdpPositions[fpdValue],
                                                         size: 12,
                                                         font: sourceSansProFont,
@@ -1540,11 +1558,11 @@ document.addEventListener("DOMContentLoaded", function () {
                                         const backwardCompatibleMode = document.querySelector('.fpd-options .btn.option.active[data-value="Yes"]') ? 'Yes' : 
                                             document.querySelector('.fpd-options .btn.option.active[data-value="No"]') ? 'No' : 'Not Provided';
                                         const backwardCompatiblePositions = {
-                                            'Yes': { x: 324, y: 198 },
-                                            'No': { x: 446, y: 198 },
+                                            'Yes': { x: 324, y: 505 },
+                                            'No': { x: 446, y: 505 },
                                         };
                                         if (backwardCompatibleMode in backwardCompatiblePositions) {
-                                            secondPage.drawText('X', {
+                                            currentPage.drawText('X', {
                                                 ...backwardCompatiblePositions[backwardCompatibleMode],
                                                 size: 12,
                                                 font: sourceSansProFont,
@@ -1556,11 +1574,11 @@ document.addEventListener("DOMContentLoaded", function () {
                                         const lowFrequencyMode = document.querySelector('.fpd-options .btn.option.active[data-value="Yes"]') ? 'Yes' : 
                                             document.querySelector('.fpd-options .btn.option.active[data-value="No"]') ? 'No' : 'Not Provided';
                                         const lowFrequencyPositions = {
-                                            'Yes': { x: 324, y: 181 },
-                                            'No': { x: 446, y: 181 },
+                                            'Yes': { x: 324, y: 488 },
+                                            'No': { x: 446, y: 488 },
                                         };
                                         if (lowFrequencyMode in lowFrequencyPositions) {
-                                            secondPage.drawText('X', {
+                                            currentPage.drawText('X', {
                                                 ...lowFrequencyPositions[lowFrequencyMode],
                                                 size: 12,
                                                 font: sourceSansProFont,
@@ -1572,11 +1590,11 @@ document.addEventListener("DOMContentLoaded", function () {
                                         const transferMode = document.querySelector('.fpd-options .btn.option.active[data-value="Single Lane"]') ? 'Single Lane' : 
                                             document.querySelector('.fpd-options .btn.option.active[data-value="Dual Lane"]') ? 'Dual Lane' : 'Not Provided';
                                         const transferModePositions = {
-                                            'Single Lane': { x: 324, y: 164 },
-                                            'Dual Lane': { x: 446, y: 164 },
+                                            'Single Lane': { x: 324, y: 471 },
+                                            'Dual Lane': { x: 446, y: 471 },
                                         };
                                         if (transferMode in transferModePositions) {
-                                            secondPage.drawText('X', {
+                                            currentPage.drawText('X', {
                                                 ...transferModePositions[transferMode],
                                                 size: 12,
                                                 font: sourceSansProFont,
@@ -1595,15 +1613,15 @@ document.addEventListener("DOMContentLoaded", function () {
                                         }
 
                                         const apixPositions = {
-                                            'APIX I': { x: 324, y: 216 },
-                                            'APIX II': { x: 409, y: 216 },
-                                            'APIX III': { x: 495, y: 216 },
+                                            'APIX I': { x: 324, y: 523 },
+                                            'APIX II': { x: 409, y: 523 },
+                                            'APIX III': { x: 495, y: 523 },
                                         };
 
                                         apixOptions.forEach((option) => {
                                             const apixValue = option.dataset.value;
                                             if (apixPositions[apixValue]) {
-                                                secondPage.drawText('X', {
+                                                currentPage.drawText('X', {
                                                     ...apixPositions[apixValue],
                                                     size: 12,
                                                     font: sourceSansProFont,
@@ -1624,13 +1642,13 @@ document.addEventListener("DOMContentLoaded", function () {
                                             gmslOptions.forEach((option) => {
                                                 const gmslValue = option.dataset.value;
                                                 const gmslPositions = {
-                                                    'GMSL I': { x: 324, y: 216 },
-                                                    'GMSL II': { x: 409, y: 216 },
-                                                    'GMSL III': { x: 495, y: 216 },
+                                                    'GMSL I': { x: 324, y: 522 },
+                                                    'GMSL II': { x: 409, y: 522 },
+                                                    'GMSL III': { x: 495, y: 522 },
                                                 };
 
                                                 if (gmslValue in gmslPositions) {
-                                                    secondPage.drawText('X', {
+                                                    currentPage.drawText('X', {
                                                         ...gmslPositions[gmslValue],
                                                         size: 12,
                                                         font: sourceSansProFont,
@@ -1647,48 +1665,50 @@ document.addEventListener("DOMContentLoaded", function () {
                                             document.querySelector('.gmsl-options .btn.option.active[data-value="32 bit"]') ? '32 bit' : 
                                             document.querySelector('.gmsl-options .btn.option.active[data-value="64 bit"]') ? '64 bit' : 'Not Provided';
                                         const busWidthPositions = {
-                                            '24 bit': { x: 324, y: 199 },
-                                            '32 bit': { x: 409, y: 199 },
-                                            '64 bit': { x: 495, y: 199 },
+                                            '24 bit': { x: 324, y: 505 },
+                                            '32 bit': { x: 409, y: 505 },
+                                            '64 bit': { x: 495, y: 505 },
                                         };
                                         if (busWidth in busWidthPositions) {
-                                            secondPage.drawText('X', {
+                                            currentPage.drawText('X', {
                                                 ...busWidthPositions[busWidth],
                                                 size: 12,
                                                 font: sourceSansProFont,
                                                 color: fontColor,
-                                            });
+                                                });
+                                            }
+                                        },
+                                    };
+
+                                        if (chipManufacturer in chipOptions) {
+                                            chipOptions[chipManufacturer]();
+                                        } else {
+                                            console.error(`Chip manufacturer "${chipManufacturer}" is not recognized.`);
                                         }
-                                    },
-                                };
+                                    } else {
+                                        console.error('No chip manufacturer selected.');
+                                    }
 
-                                if (chipManufacturer in chipOptions) {
-                                    chipOptions[chipManufacturer]();
-                                } else {
-                                    console.error(`Chip manufacturer "${chipManufacturer}" is not recognized.`);
+                                    // Additional Information
+                                    const additionalInformation = document.getElementById('useCase')?.value || 'Additional Information Not Provided';
+                                    const additionalInfoPositions = {
+                                        'Texas Instruments': { x: 324, y: 455 },
+                                        'APIX': { x: 324, y: 504 },
+                                        'Maxim': { x: 324, y: 489 },
+                                    };
+
+                                    if (chipManufacturer in additionalInfoPositions) {
+                                        currentPage.drawText(`${additionalInformation}`, {
+                                            ...additionalInfoPositions[chipManufacturer],
+                                            size: 10,
+                                            font: sourceSansProFont,
+                                            color: fontColor,
+                                        });
+                                    } else {
+                                        console.error(`Chip manufacturer "${chipManufacturer}" is not recognized.`);
+                                    }
                                 }
-                            } else {
-                                console.error('No chip manufacturer selected.');
-                            }
-
-                            // Additional Information
-                            const additionalInformation = document.getElementById('useCase')?.value || 'Additional Information Not Provided';
-                            const additionalInfoPositions = {
-                                'Texas Instruments': { x: 324, y: 148 },
-                                'APIX': { x: 324, y: 197 },
-                                'Maxim': { x: 324, y: 180 },
-                            };
-
-                            if (chipManufacturer in additionalInfoPositions) {
-                                secondPage.drawText(`${additionalInformation}`, {
-                                    ...additionalInfoPositions[chipManufacturer],
-                                    size: 10,
-                                    font: sourceSansProFont,
-                                    color: fontColor,
-                                });
-                            } else {
-                                console.error(`Chip manufacturer "${chipManufacturer}" is not recognized.`);
-                            }
+                            });
 
                             // Save and download the modified PDF
                             const pdfBytes = await pdfDoc.save();
@@ -1697,14 +1717,6 @@ document.addEventListener("DOMContentLoaded", function () {
                             link.href = URL.createObjectURL(blob);
                             link.download = 'ATS_Parameter-Checklist_Video_Projects_Modified.pdf';
                             link.click();
-
-                            // Send the PDF to the selected email
-                            const selectedEmail = contactPersonDropdown.value;
-                            if (selectedEmail) {
-                                await sendPdfToEmail(pdfBytes, selectedEmail);
-                            } else {
-                                alert('No email selected. Please select a valid email.');
-                            }
                         } catch (error) {
                             console.error('Error modifying the PDF:', error);
                             alert('An error occurred while generating the PDF. Please try again.');
@@ -1714,7 +1726,6 @@ document.addEventListener("DOMContentLoaded", function () {
                         alert('Failed to load the existing PDF. Please check the file path.');
                     }
                 };
-                
                 xhr.send();
             } else {
                 console.error("Please fill in all required fields and select an option from the dropdown.");
@@ -1724,30 +1735,7 @@ document.addEventListener("DOMContentLoaded", function () {
         console.error("Submit button not found in the DOM!");
     }
 
-    async function sendPdfToEmail(pdfBytes, email) {
-        try {
-            const formData = new FormData();
-            formData.append('email', email);
-            formData.append('file', new Blob([pdfBytes], { type: 'application/pdf' }), 'ATS_Parameter-Checklist_Video_Projects_Modified.pdf');
-
-            const response = await fetch('/send-email', { // Replace with your backend endpoint
-                method: 'POST',
-                body: formData
-            });
-
-            if (response.ok) {
-                alert(`PDF successfully sent to ${email}`);
-            } else {
-                console.error('Failed to send email:', response.statusText);
-                alert('Failed to send the email. Please try again.');
-            }
-        } catch (error) {
-            console.error('Error sending email:', error);
-            alert('An error occurred while sending the email. Please try again.');
-        }
-    }
-
-    function getPdfUrlByChipManufacturer() {
+    function getPdfUrlsByChipManufacturer() {
         const chipManufacturerSelect = document.querySelector('select[name="chipManufacturer[]"]');
         const chipManufacturer = chipManufacturerSelect?.value;
 
@@ -1756,7 +1744,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (!chipManufacturer || !icType) {
             if (!chipManufacturer) {
-                chipManufacturerSelect.classList.add('error-highlight'); // Highlight the dropdown
+                chipManufacturerSelect.classList.add('error-highlight');
                 const errorMessage = document.createElement('span');
                 errorMessage.classList.add('error-message');
                 errorMessage.textContent = 'Please select a valid chip manufacturer.';
@@ -1764,7 +1752,7 @@ document.addEventListener("DOMContentLoaded", function () {
             }
 
             if (!icType) {
-                icTypeSelect.classList.add('error-highlight'); // Highlight the dropdown
+                icTypeSelect.classList.add('error-highlight');
                 const errorMessage = document.createElement('span');
                 errorMessage.classList.add('error-message');
                 errorMessage.textContent = 'Please select Source or Sink.';
@@ -1780,55 +1768,58 @@ document.addEventListener("DOMContentLoaded", function () {
             icTypeSelect.parentElement.querySelectorAll('.error-message').forEach(msg => msg.remove());
         }
 
-        switch (chipManufacturer) {
-            case 'Texas Instruments':
-                return `./files/print/Checklist_TexasInstruments_${icType}.pdf`;
-            case 'APIX':
-                return `./files/print/Checklist_Apix_${icType}.pdf`;
-            case 'Maxim':
-                return `./files/print/Checklist_Maxim_${icType}.pdf`;
-            default:
-                return null;
+        const regularPdfUrl = `./files/print/Checklist_${chipManufacturer}_${icType}.pdf`;
+        const uutPdfUrl = `./files/print/Checklist_${chipManufacturer}_${icType}_UUT.pdf`;
+        
+        return { regularPdfUrl, uutPdfUrl };
+    }
+
+    // Modify the submit button event listener
+    submitButton.addEventListener('click', async function () {
+        const pdfUrls = getPdfUrlsByChipManufacturer();
+        if (!pdfUrls) return;
+
+        const { regularPdfUrl, uutPdfUrl } = pdfUrls;
+
+        try {
+            // Load the regular PDF
+            const regularPdfResponse = await fetch(regularPdfUrl);
+            if (!regularPdfResponse.ok) throw new Error('Failed to load the regular PDF.');
+            const regularPdfData = await regularPdfResponse.arrayBuffer();
+            const regularPdfDoc = await PDFLib.PDFDocument.load(regularPdfData);
+
+            // Load the "_UUT" PDF
+            const uutPdfResponse = await fetch(uutPdfUrl);
+            if (!uutPdfResponse.ok) throw new Error('Failed to load the "_UUT" PDF.');
+            const uutPdfData = await uutPdfResponse.arrayBuffer();
+            const uutPdfDoc = await PDFLib.PDFDocument.load(uutPdfData);
+
+            // Copy pages from the "_UUT" PDF to the regular PDF
+            const uutPages = await regularPdfDoc.copyPages(uutPdfDoc, uutPdfDoc.getPageIndices());
+            uutPages.forEach(page => regularPdfDoc.addPage(page));
+
+            // Modify the combined PDF as needed
+            regularPdfDoc.registerFontkit(window.fontkit);
+            const fontBytes = await fetch('./fonts/SourceSansPro-Regular.otf').then(res => res.arrayBuffer());
+            const sourceSansProFont = await regularPdfDoc.embedFont(fontBytes);
+
+            const pages = regularPdfDoc.getPages();
+
+
+
+
+            
+
+            // Save and download the combined PDF
+            const pdfBytes = await regularPdfDoc.save();
+            const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'ATS_Parameter-Checklist_Video_Projects_Modified.pdf';
+            link.click();
+        } catch (error) {
+            console.error('Error generating the PDF:', error);
+            alert('An error occurred while generating the PDF. Please try again.');
         }
-    }
-    
-    // Update the submit button event listener to use the dynamic PDF URL
-    submitButton.addEventListener('click', function () {
-        const pdfUrl = getPdfUrlByChipManufacturer();
-        if (!pdfUrl) return;
-    
-        const xhr = new XMLHttpRequest();
-        xhr.open('GET', pdfUrl, true);
-        xhr.responseType = 'arraybuffer';
-    
-        xhr.onload = async function () {
-            if (xhr.status === 200) {
-                try {
-                    const pdfData = xhr.response;
-                    const pdfDoc = await PDFLib.PDFDocument.load(pdfData);
-    
-                    // ...existing code for modifying and saving the PDF...
-    
-                } catch (error) {
-                    console.error('Error modifying the PDF:', error);
-                    alert('An error occurred while generating the PDF. Please try again.');
-                }
-            } else {
-                console.error('Failed to load the existing PDF. Status:', xhr.status);
-                alert('Failed to load the existing PDF. Please check the file path.');
-            }
-        };
-    
-        xhr.send();
     });
-
-    const contactPersonDropdown = document.getElementById('contactPerson');
-
-    // Function to add a new email to the dropdown
-    function addEmailToDropdown(email) {
-        const option = document.createElement('option');
-        option.value = email;
-        option.textContent = email;
-        contactPersonDropdown.appendChild(option);
-    }
 });
