@@ -725,543 +725,740 @@ document.addEventListener("DOMContentLoaded", function () {
         console.log("Hardware format buttons NOT found!");
     }
 
-    // Ensure the submit button is properly linked to the generatePDF function
-    const submitButton = document.getElementById('submitForm');
-    if (submitButton) {
-        submitButton.addEventListener('click', function () {
-            // Validate required fields before showing the confirmation dialog
-            const requiredFields = ['customerName', 'contactPerson', 'projectTitle', 'useCase', 'plannedQuantity'];
-            const requiredDropdowns = document.querySelectorAll('select[required]');
-            let isValid = true;
-
-            // Clear previous error messages
-            document.querySelectorAll('.error-message').forEach(msg => msg.remove());
-
-            // Track the first invalid element
-            let firstInvalidElement = null;
-
-            // Validate text fields
-            requiredFields.forEach(fieldId => {
-                const field = document.getElementById(fieldId);
-                if (field && !field.value.trim()) {
-                    field.classList.add('error-highlight'); // Highlight missing fields
-                    isValid = false;
-
-                    // Add error message
-                    const errorMessage = document.createElement('span');
-                    errorMessage.classList.add('error-message');
-                    errorMessage.textContent = 'This field is required.';
-                    field.parentElement.appendChild(errorMessage);
-
-                    // Track the first invalid element
-                    if (!firstInvalidElement) {
-                        firstInvalidElement = field;
+                if (isValid) {
+                    const isConfirmed = confirm("Submitting form, are you sure?");
+                    if (!isConfirmed) {
+                        return; 
                     }
-                } else if (field) {
-                    field.classList.remove('error-highlight');
-                }
-            });
 
-            // Validate dropdown menus
-            requiredDropdowns.forEach(dropdown => {
-                if (!dropdown.value.trim()) {
-                    dropdown.classList.add('error-highlight');
-                    isValid = false;
+                    const pdfUrls = getPdfUrlsByChipManufacturer(); // Fix function name
 
-                    // Add error message
-                    const errorMessage = document.createElement('span');
-                    errorMessage.classList.add('error-message');
-                    errorMessage.textContent = 'Please select an option.';
-                    dropdown.parentElement.appendChild(errorMessage);
+                    if (!pdfUrls) return;
 
-                    // Track the first invalid element
-                    if (!firstInvalidElement) {
-                        firstInvalidElement = dropdown;
-                    }
-                } else {
-                    dropdown.classList.remove('error-highlight');
-                }
-            });
+                    const { regularPdfUrl, uutPdfUrl } = pdfUrls;
 
-            if (firstInvalidElement) {
-                setTimeout(() => {
-                    firstInvalidElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }, 100); 
-            }
+                    const xhr = new XMLHttpRequest();
+                    xhr.open('GET', regularPdfUrl, true);
+                    xhr.responseType = 'arraybuffer';
 
-            // Submitting Form and PDF print
-            if (isValid) {
-                const isConfirmed = confirm("Submitting form, are you sure?");
-                if (!isConfirmed) {
-                    return; 
-                }
-
-                const pdfUrl = getPdfUrlByChipManufacturer();
-                if (!pdfUrl) return;
-
-                const xhr = new XMLHttpRequest();
-                xhr.open('GET', pdfUrl, true);
-                xhr.responseType = 'arraybuffer';
-
-                xhr.onload = async function () {
-                    if (xhr.status === 200) {
-                        try {
-                            const pdfData = xhr.response;
-
-                            const pdfDoc = await PDFLib.PDFDocument.load(pdfData);
-
-                            pdfDoc.registerFontkit(window.fontkit);
-
-                            const fontUrl = './fonts/SourceSansPro-Regular.otf';
-                            let fontBytes;
+                    xhr.onload = async function () {
+                        if (xhr.status === 200) {
                             try {
-                                fontBytes = await fetch(fontUrl).then(res => res.arrayBuffer());
-                            } catch (error) {
-                                console.error('Failed to load font file:', error);
-                                alert('Font file could not be loaded. Please check the file path.');
-                                return;
-                            }
+                                const pdfData = xhr.response;
 
-                            // Embed the font into the PDF document
-                            let sourceSansProFont;
-                            try {
-                            try {
-                                sourceSansProFont = await pdfDoc.embedFont(fontBytes);
-                            } catch (error) {
-                                console.error('Failed to embed font:', error);
-                                alert('Font embedding failed. Please check the font file.');
-                                return;
-                            }
+                                const pdfDoc = await PDFLib.PDFDocument.load(pdfData);
 
-                            const pages = pdfDoc.getPages();
-                            const firstPage = pages[0];
+                                pdfDoc.registerFontkit(window.fontkit);
 
-                            // Define font size and color
-                            const fontSize = 10;
-                            const fontColor = PDFLib.rgb(0, 0, 0);
-
-                            /*Text Import*/
-                            // General Information
-                            const customerName = document.getElementById('customerName')?.value || 'Customer Name Not Provided';
-                            firstPage.drawText(`${customerName}`, {
-                                x: 324,
-                                y: 639,
-                                size: fontSize,
-                                font: sourceSansProFont,
-                                color: fontColor,
-                            });
-
-                            const contactPerson = document.getElementById('contactPerson')?.value || 'Contact Person Not Provided';
-                            firstPage.drawText(`${contactPerson}`, {
-                                x: 324,
-                                y: 608,
-                                size: fontSize,
-                                font: sourceSansProFont,
-                                color: fontColor,
-                            });
-
-                            const projectTitle = document.getElementById('projectTitle')?.value || 'Project Title Not Provided';
-                            firstPage.drawText(`${projectTitle}`, {
-                                x: 324,
-                                y: 576,
-                                size: fontSize,
-                                font: sourceSansProFont,
-                                color: fontColor,
-                            });
-
-                            const useCase = document.getElementById('useCase')?.value || 'Use Case Not Provided';
-                            firstPage.drawText(`${useCase}`, {
-                                x: 324,
-                                y: 544,
-                                size: fontSize,
-                                font: sourceSansProFont,
-                                color: fontColor,
-                            });
-
-                            /*Technical Basics*/
-                            const plannedQuantity = document.getElementById('plannedQuantity')?.value || 'Planned Quantity Not Provided';
-                            firstPage.drawText(`${plannedQuantity}`, {
-                                x: 324,
-                                y: 495,
-                                size: fontSize,
-                                font: sourceSansProFont,
-                                color: fontColor,
-                            });
-
-                            // Hardware Format Check Box
-                            const testHardwareFormat = document.querySelector('input[name="testHardwareFormat[]"]:checked')?.value || '';
-                            const hardwareFormatPositions = {
-                                'Box (GigE)': { x: 328, y: 477 },
-                                'PCIe Card': { x: 412, y: 477 },
-                                'PXIe Card': { x: 498, y: 477 },
-                            };
-                            if (testHardwareFormat in hardwareFormatPositions) {
-                                firstPage.drawText('X', {
-                                    ...hardwareFormatPositions[testHardwareFormat],
-                                    size: 12,
-                                    font: sourceSansProFont,
-                                    color: fontColor,
-                                });
-                            }
-
-                            
-
-                            // Inputs & Outputs
-                            const numberInputs = document.getElementById('numberInputsEditable')?.value || '1';
-                            firstPage.drawText(`${numberInputs}`, {
-                                x: 324,
-                                y: 460,
-                                size: fontSize,
-                                font: sourceSansProFont,
-                                color: fontColor,
-                            });
-
-                            const numberOutputs = document.getElementById('numberOutputsEditable')?.value || '1';
-                            firstPage.drawText(`${numberOutputs}`, {
-                                x: 324,
-                                y: 443,
-                                size: fontSize,
-                                font: sourceSansProFont,
-                                color: fontColor,
-                            });
-
-                             // Dynamic Sections
-                            const videoSections = document.querySelectorAll('.dynamic-input-output');
-                            videoSections.forEach((section, index) => {
-                                let currentPage;
-                                if (index < pages.length) {
-                                    currentPage = pages[index + 1]; // Use existing pages starting from the second page
-                                } else {
-                                    currentPage = pdfDoc.addPage(); // Add a new page if needed
-                                }
-
-                                if (!currentPage) {
-                                    console.error(`Failed to initialize page for section ${index + 1}`);
+                                const fontUrl = './fonts/SourceSansPro-Regular.otf';
+                                let fontBytes;
+                                try {
+                                    fontBytes = await fetch(fontUrl).then(res => res.arrayBuffer());
+                                } catch (error) {
+                                    console.error('Failed to load font file:', error);
+                                    alert('Font file could not be loaded. Please check the file path.');
                                     return;
                                 }
 
-                                const inputOrOutput = section.querySelector('input[name="inputOrOutput[]"]:checked')?.value || '';
-                                const icType = section.querySelector('select[name="icType[]"]')?.value || '';
-                                const videoConnectorType = section.querySelector('.video-connector-type .btn.option.active')?.dataset.value || '';
-                                const otherText = section.querySelector('textarea[name="otherVideoConnectorType"]')?.value || '';
-                                const pinningConnector = section.querySelector('textarea[name="pinningConnector"]')?.value || '';
-                                const powerSupply = section.querySelector('.power-supply-buttons .btn-option.active')?.dataset.value || '';
-                                const voltageCurrent = section.querySelector('.power-supply-details input[name="voltageCurrentConsumption[]"]')?.value || '';
-                                const pixelClock = section.querySelector('input[name="pixelClock[]"]')?.value || '';
-                                const imageWidth = section.querySelector('input[name="imageWidth[]"]')?.value || '';
-                                const imageHeight = section.querySelector('input[name="imageHeight[]"]')?.value || '';
-                                const frameRate = section.querySelector('input[name="frameRate[]"]')?.value || '';
-                                const horizontalSync = section.querySelector('input[name="horizontalSyncPolarity[]"]:checked')?.value || '';
-                                const verticalSync = section.querySelector('input[name="verticalSyncPolarity[]"]:checked')?.value || '';
-                                const dataEnable = section.querySelector('input[name="dataEnablePolarity[]"]:checked')?.value || '';
-                                const pixelClockPolarity = section.querySelector('input[name="pixelClockPolarity[]"]:checked')?.value || '';
-                                const lockOutputEnable = section.querySelector('input[name="lockOutputEnable[]"]:checked')?.value || '';
-                                const lockPolarity = section.querySelector('input[name="lockPolarity[]"]:checked')?.value || '';
-                                const videoFormat = section.querySelector('input[name="videoFormat[]"]')?.value || '';
+                                // Embed the font into the PDF document
+                                let sourceSansProFont;
+                                try {
+                                    sourceSansProFont = await pdfDoc.embedFont(fontBytes);
+                                } catch (error) {
+                                    console.error('Failed to embed font:', error);
+                                    alert('Font embedding failed. Please check the font file.');
+                                    return;
+                                }
+                                try {
+                                    const pages = pdfDoc.getPages();
+                                    const firstPage = pages[0];
+                                } // Missing catch or finally here
+                                finally {
+                                    console.log('PDF processing attempt completed.');
+                                }
 
-                                // Title for each section
-                                const sectionTitle = `UUT Video IN/OUT ${index + 1}`;
-                                const yPosition = 710;
-                                currentPage.drawText(sectionTitle, {
-                                    x: 90, 
-                                    y: yPosition, 
-                                    size: 14,
+                                // Define font size and color
+                                const fontSize = 10;
+                                const fontColor = PDFLib.rgb(0, 0, 0);
+
+                                /*Text Import*/
+                                // General Information
+                                const customerName = document.getElementById('customerName')?.value || 'Customer Name Not Provided';
+                                firstPage.drawText(`${customerName}`, {
+                                    x: 324,
+                                    y: 639,
+                                    size: fontSize,
                                     font: sourceSansProFont,
                                     color: fontColor,
                                 });
 
-                                // input/output
-                                if (inputOrOutput === 'Input') {
-                                    currentPage.drawText('X', { 
-                                        x: 90, 
-                                        y: 693, 
-                                        size: 12, 
-                                        color: fontColor, 
+                                const contactPerson = document.getElementById('contactPerson')?.value || 'Contact Person Not Provided';
+                                firstPage.drawText(`${contactPerson}`, {
+                                    x: 324,
+                                    y: 608,
+                                    size: fontSize,
+                                    font: sourceSansProFont,
+                                    color: fontColor,
+                                });
+
+                                const projectTitle = document.getElementById('projectTitle')?.value || 'Project Title Not Provided';
+                                firstPage.drawText(`${projectTitle}`, {
+                                    x: 324,
+                                    y: 576,
+                                    size: fontSize,
+                                    font: sourceSansProFont,
+                                    color: fontColor,
+                                });
+
+                                const useCase = document.getElementById('useCase')?.value || 'Use Case Not Provided';
+                                firstPage.drawText(`${useCase}`, {
+                                    x: 324,
+                                    y: 544,
+                                    size: fontSize,
+                                    font: sourceSansProFont,
+                                    color: fontColor,
+                                });
+
+                                /*Technical Basics*/
+                                const plannedQuantity = document.getElementById('plannedQuantity')?.value || 'Planned Quantity Not Provided';
+                                firstPage.drawText(`${plannedQuantity}`, {
+                                    x: 324,
+                                    y: 495,
+                                    size: fontSize,
+                                    font: sourceSansProFont,
+                                    color: fontColor,
+                                });
+
+                                // Hardware Format Check Box
+                                const testHardwareFormat = document.querySelector('input[name="testHardwareFormat[]"]:checked')?.value || '';
+                                const hardwareFormatPositions = {
+                                    'Box (GigE)': { x: 328, y: 477 },
+                                    'PCIe Card': { x: 412, y: 477 },
+                                    'PXIe Card': { x: 498, y: 477 },
+                                };
+                                if (testHardwareFormat in hardwareFormatPositions) {
+                                    firstPage.drawText('X', {
+                                        ...hardwareFormatPositions[testHardwareFormat],
+                                        size: 12,
                                         font: sourceSansProFont,
-                                    });
-                                } else if (inputOrOutput === 'Output') {
-                                    currentPage.drawText('X', { 
-                                        x: 324, 
-                                        y: 691, 
-                                        size: 12, 
                                         color: fontColor,
-                                        font: sourceSansProFont,
                                     });
                                 }
 
-                                // IC Type
-                                if (icType === 'Source') {
-                                    currentPage.drawText('Source (Serializer)', {
-                                        x: 324,
-                                        y: 676,
-                                        size: fontSize,
+                                
+
+                                // Inputs & Outputs
+                                const numberInputs = document.getElementById('numberInputsEditable')?.value || '1';
+                                firstPage.drawText(`${numberInputs}`, {
+                                    x: 324,
+                                    y: 460,
+                                    size: fontSize,
+                                    font: sourceSansProFont,
+                                    color: fontColor,
+                                });
+
+                                const numberOutputs = document.getElementById('numberOutputsEditable')?.value || '1';
+                                firstPage.drawText(`${numberOutputs}`, {
+                                    x: 324,
+                                    y: 443,
+                                    size: fontSize,
+                                    font: sourceSansProFont,
+                                    color: fontColor,
+                                });
+
+                                // Dynamic Sections
+                                const videoSections = document.querySelectorAll('.dynamic-input-output');
+                                videoSections.forEach((section, index) => {
+                                    let currentPage;
+                                    if (index < pages.length) {
+                                        currentPage = pages[index + 1]; // Use existing pages starting from the second page
+                                    } else {
+                                        currentPage = pdfDoc.addPage(); // Add a new page if needed
+                                    }
+
+                                    if (!currentPage) {
+                                        console.error(`Failed to initialize page for section ${index + 1}`);
+                                        return;
+                                    }
+
+                                    const inputOrOutput = section.querySelector('input[name="inputOrOutput[]"]:checked')?.value || '';
+                                    const icType = section.querySelector('select[name="icType[]"]')?.value || '';
+                                    const videoConnectorType = section.querySelector('.video-connector-type .btn.option.active')?.dataset.value || '';
+                                    const otherText = section.querySelector('textarea[name="otherVideoConnectorType"]')?.value || '';
+                                    const pinningConnector = section.querySelector('textarea[name="pinningConnector"]')?.value || '';
+                                    const powerSupply = section.querySelector('.power-supply-buttons .btn-option.active')?.dataset.value || '';
+                                    const voltageCurrent = section.querySelector('.power-supply-details input[name="voltageCurrentConsumption[]"]')?.value || '';
+                                    const pixelClock = section.querySelector('input[name="pixelClock[]"]')?.value || '';
+                                    const imageWidth = section.querySelector('input[name="imageWidth[]"]')?.value || '';
+                                    const imageHeight = section.querySelector('input[name="imageHeight[]"]')?.value || '';
+                                    const frameRate = section.querySelector('input[name="frameRate[]"]')?.value || '';
+                                    const horizontalSync = section.querySelector('input[name="horizontalSyncPolarity[]"]:checked')?.value || '';
+                                    const verticalSync = section.querySelector('input[name="verticalSyncPolarity[]"]:checked')?.value || '';
+                                    const dataEnable = section.querySelector('input[name="dataEnablePolarity[]"]:checked')?.value || '';
+                                    const pixelClockPolarity = section.querySelector('input[name="pixelClockPolarity[]"]:checked')?.value || '';
+                                    const lockOutputEnable = section.querySelector('input[name="lockOutputEnable[]"]:checked')?.value || '';
+                                    const lockPolarity = section.querySelector('input[name="lockPolarity[]"]:checked')?.value || '';
+                                    const videoFormat = section.querySelector('input[name="videoFormat[]"]')?.value || '';
+
+                                    // Title for each section
+                                    const sectionTitle = `UUT Video IN/OUT ${index + 1}`;
+                                    const yPosition = 710;
+                                    currentPage.drawText(sectionTitle, {
+                                        x: 90, 
+                                        y: yPosition, 
+                                        size: 14,
                                         font: sourceSansProFont,
                                         color: fontColor,
                                     });
 
-                                    // Video Connector Type
-                                    const connectorText = videoConnectorType === 'Other' ? otherText : videoConnectorType;
-                                    currentPage.drawText(`${connectorText}`, {
-                                        x: 324,
-                                        y: 659,
-                                        size: fontSize,
-                                        font: sourceSansProFont,
-                                        color: fontColor,
-                                    });
-                                    
-                                    // Pinning of video connector
-                                    if (pinningConnector) {
-                                        currentPage.drawText(`${pinningConnector}`, {
+                                    // input/output
+                                    if (inputOrOutput === 'Input') {
+                                        currentPage.drawText('X', { 
+                                            x: 90, 
+                                            y: 693, 
+                                            size: 12, 
+                                            color: fontColor, 
+                                            font: sourceSansProFont,
+                                        });
+                                    } else if (inputOrOutput === 'Output') {
+                                        currentPage.drawText('X', { 
+                                            x: 324, 
+                                            y: 691, 
+                                            size: 12, 
+                                            color: fontColor,
+                                            font: sourceSansProFont,
+                                        });
+                                    }
+
+                                    // IC Type
+                                    if (icType === 'Source') {
+                                        currentPage.drawText('Source (Serializer)', {
                                             x: 324,
-                                            y: 631,
+                                            y: 676,
                                             size: fontSize,
                                             font: sourceSansProFont,
                                             color: fontColor,
                                         });
-                                    }
 
-                                    // Power Supply
-                                    if (powerSupply === 'Yes') {
-                                        currentPage.drawText('X', { 
-                                            x: 324, 
-                                            y: 555, 
-                                            size: 12, 
-                                            font: sourceSansProFont, 
-                                            color: fontColor 
-                                        });
-                                        currentPage.drawText(`Voltage/Current: ${voltageCurrent}`, {
-                                            x: 345,
-                                            y: 558,
-                                            size: 7,
+                                        // Video Connector Type
+                                        const connectorText = videoConnectorType === 'Other' ? otherText : videoConnectorType;
+                                        currentPage.drawText(`${connectorText}`, {
+                                            x: 324,
+                                            y: 659,
+                                            size: fontSize,
                                             font: sourceSansProFont,
                                             color: fontColor,
                                         });
-                                    } else if (powerSupply === 'No') {
-                                        currentPage.drawText('X', { 
-                                            x: 450, 
-                                            y: 555, 
-                                            size: 12, 
-                                            font: sourceSansProFont, 
-                                            color: fontColor 
-                                        });
-                                    }
+                                        
+                                        // Pinning of video connector
+                                        if (pinningConnector) {
+                                            currentPage.drawText(`${pinningConnector}`, {
+                                                x: 324,
+                                                y: 631,
+                                                size: fontSize,
+                                                font: sourceSansProFont,
+                                                color: fontColor,
+                                            });
+                                        }
 
-                                    /* Video Parameters*/
-                                    // Pixel Clock
-                                    currentPage.drawText(`${pixelClock}`, {
-                                        x: 324,
-                                        y: 540,
-                                        size: fontSize,
-                                        font: sourceSansProFont,
-                                        color: fontColor,
-                                    });
+                                        // Power Supply
+                                        if (powerSupply === 'Yes') {
+                                            currentPage.drawText('X', { 
+                                                x: 324, 
+                                                y: 555, 
+                                                size: 12, 
+                                                font: sourceSansProFont, 
+                                                color: fontColor 
+                                            });
+                                            currentPage.drawText(`Voltage/Current: ${voltageCurrent}`, {
+                                                x: 345,
+                                                y: 558,
+                                                size: 7,
+                                                font: sourceSansProFont,
+                                                color: fontColor,
+                                            });
+                                        } else if (powerSupply === 'No') {
+                                            currentPage.drawText('X', { 
+                                                x: 450, 
+                                                y: 555, 
+                                                size: 12, 
+                                                font: sourceSansProFont, 
+                                                color: fontColor 
+                                            });
+                                        }
 
-                                    // Image Width
-                                    currentPage.drawText(`${imageWidth}`, {
-                                        x: 324,
-                                        y: 523,
-                                        size: fontSize,
-                                        font: sourceSansProFont,
-                                        color: fontColor,
-                                    });
-
-                                    // Image Height
-                                    currentPage.drawText(`${imageHeight}`, {
-                                        x: 324,
-                                        y: 506,
-                                        size: fontSize,
-                                        font: sourceSansProFont,
-                                        color: fontColor,
-                                    });
-
-                                    // Frame Rate
-                                    currentPage.drawText(`${frameRate}`, {
-                                        x: 324,
-                                        y: 489,
-                                        size: fontSize,
-                                        font: sourceSansProFont,
-                                        color: fontColor,
-                                    });
-                                    
-                                    // Horizontal Sync Polarity
-                                    if (horizontalSync === 'High') {
-                                        currentPage.drawText('X', { 
-                                            x: 324, 
-                                            y: 470, 
-                                            size: 12, 
-                                            font: sourceSansProFont, 
-                                            color: fontColor 
-                                        });
-                                    } else if (horizontalSync === 'Low') {
-                                        currentPage.drawText('X', { 
-                                            x: 446, 
-                                            y: 470, 
-                                            size: 12, 
-                                            font: sourceSansProFont, 
-                                            color: fontColor 
-                                        });
-                                    }
-
-                                    // Vertical Sync Polarity
-                                    if (verticalSync === 'High') {
-                                        currentPage.drawText('X', { 
-                                            x: 324, 
-                                            y: 453, 
-                                            size: 12, 
-                                            font: sourceSansProFont, 
-                                            color: fontColor 
-                                        });
-                                    } else if (verticalSync === 'Low') {
-                                        currentPage.drawText('X', { 
-                                            x: 446, 
-                                            y: 453, 
-                                            size: 12, 
-                                            font: sourceSansProFont, 
-                                            color: fontColor 
-                                        });
-                                    }
-
-                                    // Data Enable Polarity
-                                    if (dataEnable === 'High') {
-                                        currentPage.drawText('X', { 
-                                            x: 324, 
-                                            y: 436, 
-                                            size: 12, 
-                                            font: sourceSansProFont, 
-                                            color: fontColor 
-                                        });
-                                    } else if (dataEnable === 'Low') {
-                                        currentPage.drawText('X', { 
-                                            x: 446, 
-                                            y: 436, 
-                                            size: 12, 
-                                            font: sourceSansProFont, 
-                                            color: fontColor 
-                                        });
-                                    }
-                                    
-                                    // Pixel Clock Polarity
-                                    if (pixelClockPolarity === 'High') {
-                                        currentPage.drawText('X', { 
-                                            x: 324, 
-                                            y: 419, 
-                                            size: 12, 
-                                            font: sourceSansProFont, 
-                                            color: fontColor 
-                                        });
-                                    } else if (pixelClockPolarity === 'Low') {
-                                        currentPage.drawText('X', { 
-                                            x: 446, 
-                                            y: 419, 
-                                            size: 12, 
-                                            font: sourceSansProFont, 
-                                            color: fontColor 
-                                        });
-                                    }
-
-                                    // Lock Output Enable
-                                    if (lockOutputEnable === 'High') {
-                                        currentPage.drawText('X', { 
-                                            x: 324, 
-                                            y: 402, 
-                                            size: 12, 
-                                            font: sourceSansProFont, 
-                                            color: fontColor 
-                                        });
-                                    } else if (lockOutputEnable === 'Low') {
-                                        currentPage.drawText('X', { 
-                                            x: 446, 
-                                            y: 402, 
-                                            size: 12, 
-                                            font: sourceSansProFont, 
-                                            color: fontColor 
-                                        });
-                                    }
-
-                                    // Lock Polarity
-                                    if (lockPolarity === 'High') {
-                                        currentPage.drawText('X', { 
-                                            x: 324, 
-                                            y: 385, 
-                                            size: 12, 
-                                            font: sourceSansProFont, 
-                                            color: fontColor 
-                                        });
-                                    } else if (lockPolarity === 'Low') {
-                                        currentPage.drawText('X', { 
-                                            x: 446, 
-                                            y: 385, 
-                                            size: 12, 
-                                            font: sourceSansProFont, 
-                                            color: fontColor 
-                                        });
-                                    }
-
-                                    // Video Format
-                                    currentPage.drawText(`${videoFormat}`, {
-                                        x: 324,
-                                        y: 370,
-                                        size: fontSize,
-                                        font: sourceSansProFont,
-                                        color: fontColor,
-                                    });
-
-                                    const numberVideoChannels = document.getElementById('numberVideoChannelsEditable')?.value || 'Not Provided';
-                                    currentPage.drawText(`${numberVideoChannels}`, {
-                                    x: 324,
-                                    y: 352,
-                                    size: fontSize,
-                                    font: sourceSansProFont,
-                                    color: fontColor,
-                                    });
-
-                                    const hdcpUsed = document.querySelector('input[name="hdcpUsed[]"]:checked')?.value || '';
-                                    if (hdcpUsed === 'Yes') {
-                                        currentPage.drawText('X', { 
-                                            x: 324, 
-                                            y: 334, 
-                                            size: 12, 
-                                            font: sourceSansProFont, 
-                                            color: fontColor 
-                                        });
-
-                                    } else if (hdcpUsed === 'No') {
-                                        currentPage.drawText('X', { 
-                                            x: 446, 
-                                            y: 334, 
-                                            size: 12, 
-                                            font: sourceSansProFont, 
-                                            color: fontColor 
-                                        });
-                                    }
-
-                                    // Sideband
-                                    const sidebandOptions = ['I2C', 'UART', 'SPI', 'MII', 'CAN'];
-                                    const sidebandPositions = {
-                                        'I2C': { yes: { x: 324, y: 317 }, no: { x: 446, y: 317 } },
-                                        'UART': { yes: { x: 324, y: 301 }, no: { x: 446, y: 301 } },
-                                        'SPI': { yes: { x: 324, y: 284 }, no: { x: 446, y: 284 } },
-                                        'MII': { yes: { x: 324, y: 267 }, no: { x: 446, y: 267 } },
-                                        'CAN': { yes: { x: 324, y: 250 }, no: { x: 446, y: 250 } },
-                                    };
-
-                                    sidebandOptions.forEach((option) => {
-                                        const isSelected = document.querySelector(`input[name="sideband"][value="${option}"]:checked`) !== null;
-
-                                        if (isSelected) {
-                                        currentPage.drawText('X', {
-                                            ...sidebandPositions[option].yes,
-                                            size: 12,
+                                        /* Video Parameters*/
+                                        // Pixel Clock
+                                        currentPage.drawText(`${pixelClock}`, {
+                                            x: 324,
+                                            y: 540,
+                                            size: fontSize,
                                             font: sourceSansProFont,
                                             color: fontColor,
                                         });
-                                        } else {
-                                            // Print 'X' for "No" position
+
+                                        // Image Width
+                                        currentPage.drawText(`${imageWidth}`, {
+                                            x: 324,
+                                            y: 523,
+                                            size: fontSize,
+                                            font: sourceSansProFont,
+                                            color: fontColor,
+                                        });
+
+                                        // Image Height
+                                        currentPage.drawText(`${imageHeight}`, {
+                                            x: 324,
+                                            y: 506,
+                                            size: fontSize,
+                                            font: sourceSansProFont,
+                                            color: fontColor,
+                                        });
+
+                                        // Frame Rate
+                                        currentPage.drawText(`${frameRate}`, {
+                                            x: 324,
+                                            y: 489,
+                                            size: fontSize,
+                                            font: sourceSansProFont,
+                                            color: fontColor,
+                                        });
+                                        
+                                        // Horizontal Sync Polarity
+                                        if (horizontalSync === 'High') {
+                                            currentPage.drawText('X', { 
+                                                x: 324, 
+                                                y: 470, 
+                                                size: 12, 
+                                                font: sourceSansProFont, 
+                                                color: fontColor 
+                                            });
+                                        } else if (horizontalSync === 'Low') {
+                                            currentPage.drawText('X', { 
+                                                x: 446, 
+                                                y: 470, 
+                                                size: 12, 
+                                                font: sourceSansProFont, 
+                                                color: fontColor 
+                                            });
+                                        }
+
+                                        // Vertical Sync Polarity
+                                        if (verticalSync === 'High') {
+                                            currentPage.drawText('X', { 
+                                                x: 324, 
+                                                y: 453, 
+                                                size: 12, 
+                                                font: sourceSansProFont, 
+                                                color: fontColor 
+                                            });
+                                        } else if (verticalSync === 'Low') {
+                                            currentPage.drawText('X', { 
+                                                x: 446, 
+                                                y: 453, 
+                                                size: 12, 
+                                                font: sourceSansProFont, 
+                                                color: fontColor 
+                                            });
+                                        }
+
+                                        // Data Enable Polarity
+                                        if (dataEnable === 'High') {
+                                            currentPage.drawText('X', { 
+                                                x: 324, 
+                                                y: 436, 
+                                                size: 12, 
+                                                font: sourceSansProFont, 
+                                                color: fontColor 
+                                            });
+                                        } else if (dataEnable === 'Low') {
+                                            currentPage.drawText('X', { 
+                                                x: 446, 
+                                                y: 436, 
+                                                size: 12, 
+                                                font: sourceSansProFont, 
+                                                color: fontColor 
+                                            });
+                                        }
+                                        
+                                        // Pixel Clock Polarity
+                                        if (pixelClockPolarity === 'High') {
+                                            currentPage.drawText('X', { 
+                                                x: 324, 
+                                                y: 419, 
+                                                size: 12, 
+                                                font: sourceSansProFont, 
+                                                color: fontColor 
+                                            });
+                                        } else if (pixelClockPolarity === 'Low') {
+                                            currentPage.drawText('X', { 
+                                                x: 446, 
+                                                y: 419, 
+                                                size: 12, 
+                                                font: sourceSansProFont, 
+                                                color: fontColor 
+                                            });
+                                        }
+
+                                        // Lock Output Enable
+                                        if (lockOutputEnable === 'High') {
+                                            currentPage.drawText('X', { 
+                                                x: 324, 
+                                                y: 402, 
+                                                size: 12, 
+                                                font: sourceSansProFont, 
+                                                color: fontColor 
+                                            });
+                                        } else if (lockOutputEnable === 'Low') {
+                                            currentPage.drawText('X', { 
+                                                x: 446, 
+                                                y: 402, 
+                                                size: 12, 
+                                                font: sourceSansProFont, 
+                                                color: fontColor 
+                                            });
+                                        }
+
+                                        // Lock Polarity
+                                        if (lockPolarity === 'High') {
+                                            currentPage.drawText('X', { 
+                                                x: 324, 
+                                                y: 385, 
+                                                size: 12, 
+                                                font: sourceSansProFont, 
+                                                color: fontColor 
+                                            });
+                                        } else if (lockPolarity === 'Low') {
+                                            currentPage.drawText('X', { 
+                                                x: 446, 
+                                                y: 385, 
+                                                size: 12, 
+                                                font: sourceSansProFont, 
+                                                color: fontColor 
+                                            });
+                                        }
+
+                                        // Video Format
+                                        currentPage.drawText(`${videoFormat}`, {
+                                            x: 324,
+                                            y: 370,
+                                            size: fontSize,
+                                            font: sourceSansProFont,
+                                            color: fontColor,
+                                        });
+
+                                        const numberVideoChannels = document.getElementById('numberVideoChannelsEditable')?.value || 'Not Provided';
+                                        currentPage.drawText(`${numberVideoChannels}`, {
+                                        x: 324,
+                                        y: 352,
+                                        size: fontSize,
+                                        font: sourceSansProFont,
+                                        color: fontColor,
+                                        });
+
+                                        const hdcpUsed = document.querySelector('input[name="hdcpUsed[]"]:checked')?.value || '';
+                                        if (hdcpUsed === 'Yes') {
+                                            currentPage.drawText('X', { 
+                                                x: 324, 
+                                                y: 334, 
+                                                size: 12, 
+                                                font: sourceSansProFont, 
+                                                color: fontColor 
+                                            });
+
+                                        } else if (hdcpUsed === 'No') {
+                                            currentPage.drawText('X', { 
+                                                x: 446, 
+                                                y: 334, 
+                                                size: 12, 
+                                                font: sourceSansProFont, 
+                                                color: fontColor 
+                                            });
+                                        }
+
+                                        // Sideband
+                                        const sidebandOptions = ['I2C', 'UART', 'SPI', 'MII', 'CAN'];
+                                        const sidebandPositions = {
+                                            'I2C': { yes: { x: 324, y: 317 }, no: { x: 446, y: 317 } },
+                                            'UART': { yes: { x: 324, y: 301 }, no: { x: 446, y: 301 } },
+                                            'SPI': { yes: { x: 324, y: 284 }, no: { x: 446, y: 284 } },
+                                            'MII': { yes: { x: 324, y: 267 }, no: { x: 446, y: 267 } },
+                                            'CAN': { yes: { x: 324, y: 250 }, no: { x: 446, y: 250 } },
+                                        };
+
+                                        sidebandOptions.forEach((option) => {
+                                            const isSelected = document.querySelector(`input[name="sideband"][value="${option}"]:checked`) !== null;
+
+                                            if (isSelected) {
                                             currentPage.drawText('X', {
-                                                ...sidebandPositions[option].no,
+                                                ...sidebandPositions[option].yes,
                                                 size: 12,
                                                 font: sourceSansProFont,
                                                 color: fontColor,
+                                            });
+                                            } else {
+                                                // Print 'X' for "No" position
+                                                currentPage.drawText('X', {
+                                                    ...sidebandPositions[option].no,
+                                                    size: 12,
+                                                    font: sourceSansProFont,
+                                                    color: fontColor,
+                                                });
+                                            }
+                                        });
+
+                                        // Chip Manufacturer
+                                        const chipManufacturer = document.querySelector('select[name="chipManufacturer[]"]')?.value;
+                                        if (chipManufacturer) {
+                                            const chipOptions = {
+
+                                                /* Texas Instruments */
+                                                'Texas Instruments': () => {
+                                                    const fpdOptions = document.querySelectorAll('.fpd-options .btn.option.active');
+                                                    if (fpdOptions.length === 0) {
+                                                        console.error('No active FPD options found.');
+                                                    } else {
+                                                        fpdOptions.forEach((option) => {
+                                                            const fpdValue = option.dataset.value;
+                                                            const fdpPositions = {
+                                                                'FPD Link II': { x: 324, y: 216 },
+                                                                'FPD Link III': { x: 409, y: 216 },
+                                                                'FPD Link IV': { x: 495, y: 216 },
+                                                            };
+
+                                                            if (fdpPositions[fpdValue]) {
+                                                                currentPage.drawText('X', {
+                                                                    ...fdpPositions[fpdValue],
+                                                                    size: 12,
+                                                                    font: sourceSansProFont,
+                                                                    color: fontColor,
+                                                                });
+                                                            } else {
+                                                                console.error(`FPD value "${fpdValue}" is not in fdpPositions.`);
+                                                            }
+                                                        });
+                                                    }
+
+                                                    // Backward Compatible Mode
+                                                    const backwardCompatibleMode = document.querySelector('.fpd-options .btn.option.active[data-value="Yes"]') ? 'Yes' : 
+                                                        document.querySelector('.fpd-options .btn.option.active[data-value="No"]') ? 'No' : 'Not Provided';
+                                                    const backwardCompatiblePositions = {
+                                                        'Yes': { x: 324, y: 198 },
+                                                        'No': { x: 446, y: 198 },
+                                                    };
+                                                    if (backwardCompatibleMode in backwardCompatiblePositions) {
+                                                        currentPage.drawText('X', {
+                                                            ...backwardCompatiblePositions[backwardCompatibleMode],
+                                                            size: 12,
+                                                            font: sourceSansProFont,
+                                                            color: fontColor,
+                                                        });
+                                                    }
+
+                                                    // Low Frequency Mode
+                                                    const lowFrequencyMode = document.querySelector('.fpd-options .btn.option.active[data-value="Yes"]') ? 'Yes' : 
+                                                        document.querySelector('.fpd-options .btn.option.active[data-value="No"]') ? 'No' : 'Not Provided';
+                                                    const lowFrequencyPositions = {
+                                                        'Yes': { x: 324, y: 181 },
+                                                        'No': { x: 446, y: 181 },
+                                                    };
+                                                    if (lowFrequencyMode in lowFrequencyPositions) {
+                                                        currentPage.drawText('X', {
+                                                            ...lowFrequencyPositions[lowFrequencyMode],
+                                                            size: 12,
+                                                            font: sourceSansProFont,
+                                                            color: fontColor,
+                                                        });
+                                                    }
+
+                                                    // Transfer Mode
+                                                    const transferMode = document.querySelector('.fpd-options .btn.option.active[data-value="Single Lane"]') ? 'Single Lane' : 
+                                                        document.querySelector('.fpd-options .btn.option.active[data-value="Dual Lane"]') ? 'Dual Lane' : 'Not Provided';
+                                                    const transferModePositions = {
+                                                        'Single Lane': { x: 324, y: 164 },
+                                                        'Dual Lane': { x: 446, y: 164 },
+                                                    };
+                                                    if (transferMode in transferModePositions) {
+                                                        currentPage.drawText('X', {
+                                                            ...transferModePositions[transferMode],
+                                                            size: 12,
+                                                            font: sourceSansProFont,
+                                                            color: fontColor,
+                                                        });
+                                                    }
+                                                },
+
+                                                /* APIX */
+                                                'APIX': () => {
+                                                    const apixOptions = document.querySelectorAll('.apix-options .btn.option.active');
+
+                                                    if (apixOptions.length === 0) {
+                                                        console.error('No active APIX options found.');
+                                                        return;
+                                                    }
+
+                                                    const apixPositions = {
+                                                        'APIX I': { x: 324, y: 216 },
+                                                        'APIX II': { x: 409, y: 216 },
+                                                        'APIX III': { x: 495, y: 216 },
+                                                    };
+
+                                                    apixOptions.forEach((option) => {
+                                                        const apixValue = option.dataset.value;
+                                                        if (apixPositions[apixValue]) {
+                                                            currentPage.drawText('X', {
+                                                                ...apixPositions[apixValue],
+                                                                size: 12,
+                                                                font: sourceSansProFont,
+                                                                color: fontColor,
+                                                            });
+                                                        } else {
+                                                            console.error(`APIX value "${apixValue}" is not recognized.`);
+                                                        }
+                                                    });
+                                                },
+
+                                                /* Maxim */
+                                                'Maxim': () => {
+                                                    const gmslOptions = document.querySelectorAll('.gmsl-options .btn.option.active');
+                                                    if (gmslOptions.length === 0) {
+                                                        console.error('No active GMSL options found.');
+                                                    } else {
+                                                        gmslOptions.forEach((option) => {
+                                                            const gmslValue = option.dataset.value;
+                                                            const gmslPositions = {
+                                                                'GMSL I': { x: 324, y: 216 },
+                                                                'GMSL II': { x: 409, y: 216 },
+                                                                'GMSL III': { x: 495, y: 216 },
+                                                            };
+
+                                                            if (gmslValue in gmslPositions) {
+                                                                currentPage.drawText('X', {
+                                                                    ...gmslPositions[gmslValue],
+                                                                    size: 12,
+                                                                    font: sourceSansProFont,
+                                                                    color: fontColor,
+                                                                });
+                                                            } else {
+                                                                console.error(`GMSL value "${gmslValue}" is not in gmslPositions.`);
+                                                            }
+                                                        });
+                                                    }
+
+                                                    // Bus Width
+                                                    const busWidth = document.querySelector('.gmsl-options .btn.option.active[data-value="24 bit"]') ? '24 bit' : 
+                                                        document.querySelector('.gmsl-options .btn.option.active[data-value="32 bit"]') ? '32 bit' : 
+                                                        document.querySelector('.gmsl-options .btn.option.active[data-value="64 bit"]') ? '64 bit' : 'Not Provided';
+                                                    const busWidthPositions = {
+                                                        '24 bit': { x: 324, y: 199 },
+                                                        '32 bit': { x: 409, y: 199 },
+                                                        '64 bit': { x: 495, y: 199 },
+                                                    };
+                                                    if (busWidth in busWidthPositions) {
+                                                        currentPage.drawText('X', {
+                                                            ...busWidthPositions[busWidth],
+                                                            size: 12,
+                                                            font: sourceSansProFont,
+                                                            color: fontColor,
+                                                        });
+                                                    }
+                                                },
+                                            };
+
+                                            if (chipManufacturer in chipOptions) {
+                                                chipOptions[chipManufacturer]();
+                                            } else {
+                                                console.error(`Chip manufacturer "${chipManufacturer}" is not recognized.`);
+                                            }
+                                            } else {
+                                                console.error('No chip manufacturer selected.');
+                                            }
+
+                                            // Additional Information
+                                            const additionalInformation = document.getElementById('useCase')?.value || 'Additional Information Not Provided';
+                                            const additionalInfoPositions = {
+                                                'Texas Instruments': { x: 324, y: 148 },
+                                                'APIX': { x: 324, y: 197 },
+                                                'Maxim': { x: 324, y: 180 },
+                                            };
+
+                                            if (chipManufacturer in additionalInfoPositions) {
+                                                currentPage.drawText(`${additionalInformation}`, {
+                                                    ...additionalInfoPositions[chipManufacturer],
+                                                    size: 10,
+                                                    font: sourceSansProFont,
+                                                    color: fontColor,
+                                                });
+                                            } else {
+                                                console.error(`Chip manufacturer "${chipManufacturer}" is not recognized.`);
+                                            } 
+                                        
+                                        // SinkIC 
+                                        } else {
+                                        currentPage.drawText('Sink IC (Deserializer)', {
+                                            x: 324,
+                                            y: 676,
+                                            size: fontSize,
+                                            font: sourceSansProFont,
+                                            color: fontColor,
+                                        });
+
+                                        const numberVideoChannels = document.getElementById('numberVideoChannelsEditable')?.value || 'Not Provided';
+                                        currentPage.drawText(`${numberVideoChannels}`, {
+                                            x: 324,
+                                            y: 659,
+                                            size: fontSize,
+                                            font: sourceSansProFont,
+                                            color: fontColor,
+                                        });
+
+                                        const hdcpUsed = document.querySelector('input[name="hdcpUsed[]"]:checked')?.value || '';
+                                        if (hdcpUsed === 'Yes') {
+                                            currentPage.drawText('X', { 
+                                                x: 324, 
+                                                y: 641, 
+                                                size: 12, 
+                                                font: sourceSansProFont, 
+                                                color: fontColor 
+                                            });
+
+                                        } else if (hdcpUsed === 'No') {
+                                            currentPage.drawText('X', { 
+                                                x: 446, 
+                                                y: 641, 
+                                                size: 12, 
+                                                font: sourceSansProFont, 
+                                                color: fontColor 
+                                            });
+                                        }
+
+                                        // Sideband
+                                        const sidebandOptions = ['I2C', 'UART', 'SPI', 'MII', 'CAN'];
+                                        const sidebandPositions = {
+                                            'I2C': { yes: { x: 324, y: 624 }, no: { x: 446, y: 624 } },
+                                            'UART': { yes: { x: 324, y: 608 }, no: { x: 446, y: 608 } },
+                                            'SPI': { yes: { x: 324, y: 591 }, no: { x: 446, y: 591 } },
+                                            'MII': { yes: { x: 324, y: 574 }, no: { x: 446, y: 574 } },
+                                            'CAN': { yes: { x: 324, y: 557 }, no: { x: 446, y: 557 } },
+                                        };
+
+                                    sidebandOptions.forEach((option) => {
+                                    const isSelected = document.querySelector(`input[name="sideband"][value="${option}"]:checked`) !== null;
+
+                                    if (isSelected) {
+                                    currentPage.drawText('X', {
+                                        ...sidebandPositions[option].yes,
+                                        size: 12,
+                                        font: sourceSansProFont,
+                                        color: fontColor,
+                                    });
+                                    } else {
+                                        // Print 'X' for "No" position
+                                        currentPage.drawText('X', {
+                                            ...sidebandPositions[option].no,
+                                            size: 12,
+                                            font: sourceSansProFont,
+                                            color: fontColor,
                                             });
                                         }
                                     });
@@ -1271,164 +1468,164 @@ document.addEventListener("DOMContentLoaded", function () {
                                     if (chipManufacturer) {
                                         const chipOptions = {
 
-                                            /* Texas Instruments */
-                                            'Texas Instruments': () => {
-                                                const fpdOptions = document.querySelectorAll('.fpd-options .btn.option.active');
-                                                if (fpdOptions.length === 0) {
-                                                    console.error('No active FPD options found.');
-                                                } else {
-                                                    fpdOptions.forEach((option) => {
-                                                        const fpdValue = option.dataset.value;
-                                                        const fdpPositions = {
-                                                            'FPD Link II': { x: 324, y: 216 },
-                                                            'FPD Link III': { x: 409, y: 216 },
-                                                            'FPD Link IV': { x: 495, y: 216 },
-                                                        };
+                                        /* Texas Instruments */
+                                        'Texas Instruments': () => {
+                                            const fpdOptions = document.querySelectorAll('.fpd-options .btn.option.active');
+                                            if (fpdOptions.length === 0) {
+                                                console.error('No active FPD options found.');
+                                            } else {
+                                                fpdOptions.forEach((option) => {
+                                                    const fpdValue = option.dataset.value;
+                                                    const fdpPositions = {
+                                                        'FPD Link II': { x: 324, y: 523 },
+                                                        'FPD Link III': { x: 409, y: 523 },
+                                                        'FPD Link IV': { x: 495, y: 523 },
+                                                    };
 
-                                                        if (fdpPositions[fpdValue]) {
-                                                            currentPage.drawText('X', {
-                                                                ...fdpPositions[fpdValue],
-                                                                size: 12,
-                                                                font: sourceSansProFont,
-                                                                color: fontColor,
-                                                            });
-                                                        } else {
-                                                            console.error(`FPD value "${fpdValue}" is not in fdpPositions.`);
-                                                        }
-                                                    });
-                                                }
-
-                                                // Backward Compatible Mode
-                                                const backwardCompatibleMode = document.querySelector('.fpd-options .btn.option.active[data-value="Yes"]') ? 'Yes' : 
-                                                    document.querySelector('.fpd-options .btn.option.active[data-value="No"]') ? 'No' : 'Not Provided';
-                                                const backwardCompatiblePositions = {
-                                                    'Yes': { x: 324, y: 198 },
-                                                    'No': { x: 446, y: 198 },
-                                                };
-                                                if (backwardCompatibleMode in backwardCompatiblePositions) {
-                                                    currentPage.drawText('X', {
-                                                        ...backwardCompatiblePositions[backwardCompatibleMode],
-                                                        size: 12,
-                                                        font: sourceSansProFont,
-                                                        color: fontColor,
-                                                    });
-                                                }
-
-                                                // Low Frequency Mode
-                                                const lowFrequencyMode = document.querySelector('.fpd-options .btn.option.active[data-value="Yes"]') ? 'Yes' : 
-                                                    document.querySelector('.fpd-options .btn.option.active[data-value="No"]') ? 'No' : 'Not Provided';
-                                                const lowFrequencyPositions = {
-                                                    'Yes': { x: 324, y: 181 },
-                                                    'No': { x: 446, y: 181 },
-                                                };
-                                                if (lowFrequencyMode in lowFrequencyPositions) {
-                                                    currentPage.drawText('X', {
-                                                        ...lowFrequencyPositions[lowFrequencyMode],
-                                                        size: 12,
-                                                        font: sourceSansProFont,
-                                                        color: fontColor,
-                                                    });
-                                                }
-
-                                                // Transfer Mode
-                                                const transferMode = document.querySelector('.fpd-options .btn.option.active[data-value="Single Lane"]') ? 'Single Lane' : 
-                                                    document.querySelector('.fpd-options .btn.option.active[data-value="Dual Lane"]') ? 'Dual Lane' : 'Not Provided';
-                                                const transferModePositions = {
-                                                    'Single Lane': { x: 324, y: 164 },
-                                                    'Dual Lane': { x: 446, y: 164 },
-                                                };
-                                                if (transferMode in transferModePositions) {
-                                                    currentPage.drawText('X', {
-                                                        ...transferModePositions[transferMode],
-                                                        size: 12,
-                                                        font: sourceSansProFont,
-                                                        color: fontColor,
-                                                    });
-                                                }
-                                            },
-
-                                            /* APIX */
-                                            'APIX': () => {
-                                                const apixOptions = document.querySelectorAll('.apix-options .btn.option.active');
-
-                                                if (apixOptions.length === 0) {
-                                                    console.error('No active APIX options found.');
-                                                    return;
-                                                }
-
-                                                const apixPositions = {
-                                                    'APIX I': { x: 324, y: 216 },
-                                                    'APIX II': { x: 409, y: 216 },
-                                                    'APIX III': { x: 495, y: 216 },
-                                                };
-
-                                                apixOptions.forEach((option) => {
-                                                    const apixValue = option.dataset.value;
-                                                    if (apixPositions[apixValue]) {
+                                                    if (fdpPositions[fpdValue]) {
                                                         currentPage.drawText('X', {
-                                                            ...apixPositions[apixValue],
+                                                            ...fdpPositions[fpdValue],
                                                             size: 12,
                                                             font: sourceSansProFont,
                                                             color: fontColor,
                                                         });
                                                     } else {
-                                                        console.error(`APIX value "${apixValue}" is not recognized.`);
+                                                        console.error(`FPD value "${fpdValue}" is not in fdpPositions.`);
                                                     }
                                                 });
-                                            },
+                                            }
 
-                                            /* Maxim */
-                                            'Maxim': () => {
-                                                const gmslOptions = document.querySelectorAll('.gmsl-options .btn.option.active');
-                                                if (gmslOptions.length === 0) {
-                                                    console.error('No active GMSL options found.');
-                                                } else {
-                                                    gmslOptions.forEach((option) => {
-                                                        const gmslValue = option.dataset.value;
-                                                        const gmslPositions = {
-                                                            'GMSL I': { x: 324, y: 216 },
-                                                            'GMSL II': { x: 409, y: 216 },
-                                                            'GMSL III': { x: 495, y: 216 },
-                                                        };
+                                            // Backward Compatible Mode
+                                            const backwardCompatibleMode = document.querySelector('.fpd-options .btn.option.active[data-value="Yes"]') ? 'Yes' : 
+                                                document.querySelector('.fpd-options .btn.option.active[data-value="No"]') ? 'No' : 'Not Provided';
+                                            const backwardCompatiblePositions = {
+                                                'Yes': { x: 324, y: 505 },
+                                                'No': { x: 446, y: 505 },
+                                            };
+                                            if (backwardCompatibleMode in backwardCompatiblePositions) {
+                                                currentPage.drawText('X', {
+                                                    ...backwardCompatiblePositions[backwardCompatibleMode],
+                                                    size: 12,
+                                                    font: sourceSansProFont,
+                                                    color: fontColor,
+                                                });
+                                            }
 
-                                                        if (gmslValue in gmslPositions) {
-                                                            currentPage.drawText('X', {
-                                                                ...gmslPositions[gmslValue],
-                                                                size: 12,
-                                                                font: sourceSansProFont,
-                                                                color: fontColor,
-                                                            });
-                                                        } else {
-                                                            console.error(`GMSL value "${gmslValue}" is not in gmslPositions.`);
-                                                        }
-                                                    });
-                                                }
+                                            // Low Frequency Mode
+                                            const lowFrequencyMode = document.querySelector('.fpd-options .btn.option.active[data-value="Yes"]') ? 'Yes' : 
+                                                document.querySelector('.fpd-options .btn.option.active[data-value="No"]') ? 'No' : 'Not Provided';
+                                            const lowFrequencyPositions = {
+                                                'Yes': { x: 324, y: 488 },
+                                                'No': { x: 446, y: 488 },
+                                            };
+                                            if (lowFrequencyMode in lowFrequencyPositions) {
+                                                currentPage.drawText('X', {
+                                                    ...lowFrequencyPositions[lowFrequencyMode],
+                                                    size: 12,
+                                                    font: sourceSansProFont,
+                                                    color: fontColor,
+                                                });
+                                            }
 
-                                                // Bus Width
-                                                const busWidth = document.querySelector('.gmsl-options .btn.option.active[data-value="24 bit"]') ? '24 bit' : 
-                                                    document.querySelector('.gmsl-options .btn.option.active[data-value="32 bit"]') ? '32 bit' : 
-                                                    document.querySelector('.gmsl-options .btn.option.active[data-value="64 bit"]') ? '64 bit' : 'Not Provided';
-                                                const busWidthPositions = {
-                                                    '24 bit': { x: 324, y: 199 },
-                                                    '32 bit': { x: 409, y: 199 },
-                                                    '64 bit': { x: 495, y: 199 },
-                                                };
-                                                if (busWidth in busWidthPositions) {
+                                            // Transfer Mode
+                                            const transferMode = document.querySelector('.fpd-options .btn.option.active[data-value="Single Lane"]') ? 'Single Lane' : 
+                                                document.querySelector('.fpd-options .btn.option.active[data-value="Dual Lane"]') ? 'Dual Lane' : 'Not Provided';
+                                            const transferModePositions = {
+                                                'Single Lane': { x: 324, y: 471 },
+                                                'Dual Lane': { x: 446, y: 471 },
+                                            };
+                                            if (transferMode in transferModePositions) {
+                                                currentPage.drawText('X', {
+                                                    ...transferModePositions[transferMode],
+                                                    size: 12,
+                                                    font: sourceSansProFont,
+                                                    color: fontColor,
+                                                });
+                                            }
+                                        },
+
+                                        /* APIX */
+                                        'APIX': () => {
+                                            const apixOptions = document.querySelectorAll('.apix-options .btn.option.active');
+
+                                            if (apixOptions.length === 0) {
+                                                console.error('No active APIX options found.');
+                                                return;
+                                            }
+
+                                            const apixPositions = {
+                                                'APIX I': { x: 324, y: 523 },
+                                                'APIX II': { x: 409, y: 523 },
+                                                'APIX III': { x: 495, y: 523 },
+                                            };
+
+                                            apixOptions.forEach((option) => {
+                                                const apixValue = option.dataset.value;
+                                                if (apixPositions[apixValue]) {
                                                     currentPage.drawText('X', {
-                                                        ...busWidthPositions[busWidth],
+                                                        ...apixPositions[apixValue],
                                                         size: 12,
                                                         font: sourceSansProFont,
                                                         color: fontColor,
+                                                    });
+                                                } else {
+                                                    console.error(`APIX value "${apixValue}" is not recognized.`);
+                                                }
+                                            });
+                                        },
+
+                                        /* Maxim */
+                                        'Maxim': () => {
+                                            const gmslOptions = document.querySelectorAll('.gmsl-options .btn.option.active');
+                                            if (gmslOptions.length === 0) {
+                                                console.error('No active GMSL options found.');
+                                            } else {
+                                                gmslOptions.forEach((option) => {
+                                                    const gmslValue = option.dataset.value;
+                                                    const gmslPositions = {
+                                                        'GMSL I': { x: 324, y: 522 },
+                                                        'GMSL II': { x: 409, y: 522 },
+                                                        'GMSL III': { x: 495, y: 522 },
+                                                    };
+
+                                                    if (gmslValue in gmslPositions) {
+                                                        currentPage.drawText('X', {
+                                                            ...gmslPositions[gmslValue],
+                                                            size: 12,
+                                                            font: sourceSansProFont,
+                                                            color: fontColor,
+                                                        });
+                                                    } else {
+                                                        console.error(`GMSL value "${gmslValue}" is not in gmslPositions.`);
+                                                    }
+                                                });
+                                            }
+
+                                            // Bus Width
+                                            const busWidth = document.querySelector('.gmsl-options .btn.option.active[data-value="24 bit"]') ? '24 bit' : 
+                                                document.querySelector('.gmsl-options .btn.option.active[data-value="32 bit"]') ? '32 bit' : 
+                                                document.querySelector('.gmsl-options .btn.option.active[data-value="64 bit"]') ? '64 bit' : 'Not Provided';
+                                            const busWidthPositions = {
+                                                '24 bit': { x: 324, y: 505 },
+                                                '32 bit': { x: 409, y: 505 },
+                                                '64 bit': { x: 495, y: 505 },
+                                            };
+                                            if (busWidth in busWidthPositions) {
+                                                currentPage.drawText('X', {
+                                                    ...busWidthPositions[busWidth],
+                                                    size: 12,
+                                                    font: sourceSansProFont,
+                                                    color: fontColor,
                                                     });
                                                 }
                                             },
                                         };
 
-                                        if (chipManufacturer in chipOptions) {
-                                            chipOptions[chipManufacturer]();
-                                        } else {
-                                            console.error(`Chip manufacturer "${chipManufacturer}" is not recognized.`);
-                                        }
+                                            if (chipManufacturer in chipOptions) {
+                                                chipOptions[chipManufacturer]();
+                                            } else {
+                                                console.error(`Chip manufacturer "${chipManufacturer}" is not recognized.`);
+                                            }
                                         } else {
                                             console.error('No chip manufacturer selected.');
                                         }
@@ -1436,9 +1633,9 @@ document.addEventListener("DOMContentLoaded", function () {
                                         // Additional Information
                                         const additionalInformation = document.getElementById('useCase')?.value || 'Additional Information Not Provided';
                                         const additionalInfoPositions = {
-                                            'Texas Instruments': { x: 324, y: 148 },
-                                            'APIX': { x: 324, y: 197 },
-                                            'Maxim': { x: 324, y: 180 },
+                                            'Texas Instruments': { x: 324, y: 455 },
+                                            'APIX': { x: 324, y: 504 },
+                                            'Maxim': { x: 324, y: 489 },
                                         };
 
                                         if (chipManufacturer in additionalInfoPositions) {
@@ -1450,290 +1647,24 @@ document.addEventListener("DOMContentLoaded", function () {
                                             });
                                         } else {
                                             console.error(`Chip manufacturer "${chipManufacturer}" is not recognized.`);
-                                        } 
-                                    
-                                    // SinkIC 
-                                    } else {
-                                    currentPage.drawText('Sink IC (Deserializer)', {
-                                        x: 324,
-                                        y: 676,
-                                        size: fontSize,
-                                        font: sourceSansProFont,
-                                        color: fontColor,
-                                    });
-
-                                    const numberVideoChannels = document.getElementById('numberVideoChannelsEditable')?.value || 'Not Provided';
-                                    currentPage.drawText(`${numberVideoChannels}`, {
-                                        x: 324,
-                                        y: 659,
-                                        size: fontSize,
-                                        font: sourceSansProFont,
-                                        color: fontColor,
-                                    });
-
-                                    const hdcpUsed = document.querySelector('input[name="hdcpUsed[]"]:checked')?.value || '';
-                                    if (hdcpUsed === 'Yes') {
-                                        currentPage.drawText('X', { 
-                                            x: 324, 
-                                            y: 641, 
-                                            size: 12, 
-                                            font: sourceSansProFont, 
-                                            color: fontColor 
-                                        });
-
-                                    } else if (hdcpUsed === 'No') {
-                                        currentPage.drawText('X', { 
-                                            x: 446, 
-                                            y: 641, 
-                                            size: 12, 
-                                            font: sourceSansProFont, 
-                                            color: fontColor 
-                                        });
-                                    }
-
-                                    // Sideband
-                                    const sidebandOptions = ['I2C', 'UART', 'SPI', 'MII', 'CAN'];
-                                    const sidebandPositions = {
-                                        'I2C': { yes: { x: 324, y: 624 }, no: { x: 446, y: 624 } },
-                                        'UART': { yes: { x: 324, y: 608 }, no: { x: 446, y: 608 } },
-                                        'SPI': { yes: { x: 324, y: 591 }, no: { x: 446, y: 591 } },
-                                        'MII': { yes: { x: 324, y: 574 }, no: { x: 446, y: 574 } },
-                                        'CAN': { yes: { x: 324, y: 557 }, no: { x: 446, y: 557 } },
-                                    };
-
-                                sidebandOptions.forEach((option) => {
-                                const isSelected = document.querySelector(`input[name="sideband"][value="${option}"]:checked`) !== null;
-
-                                if (isSelected) {
-                                currentPage.drawText('X', {
-                                    ...sidebandPositions[option].yes,
-                                    size: 12,
-                                    font: sourceSansProFont,
-                                    color: fontColor,
-                                });
-                                } else {
-                                    // Print 'X' for "No" position
-                                    currentPage.drawText('X', {
-                                        ...sidebandPositions[option].no,
-                                        size: 12,
-                                        font: sourceSansProFont,
-                                        color: fontColor,
-                                        });
+                                        }
                                     }
                                 });
 
-                                // Chip Manufacturer
-                                const chipManufacturer = document.querySelector('select[name="chipManufacturer[]"]')?.value;
-                                if (chipManufacturer) {
-                                    const chipOptions = {
-
-                                    /* Texas Instruments */
-                                    'Texas Instruments': () => {
-                                        const fpdOptions = document.querySelectorAll('.fpd-options .btn.option.active');
-                                        if (fpdOptions.length === 0) {
-                                            console.error('No active FPD options found.');
-                                        } else {
-                                            fpdOptions.forEach((option) => {
-                                                const fpdValue = option.dataset.value;
-                                                const fdpPositions = {
-                                                    'FPD Link II': { x: 324, y: 523 },
-                                                    'FPD Link III': { x: 409, y: 523 },
-                                                    'FPD Link IV': { x: 495, y: 523 },
-                                                };
-
-                                                if (fdpPositions[fpdValue]) {
-                                                    currentPage.drawText('X', {
-                                                        ...fdpPositions[fpdValue],
-                                                        size: 12,
-                                                        font: sourceSansProFont,
-                                                        color: fontColor,
-                                                    });
-                                                } else {
-                                                    console.error(`FPD value "${fpdValue}" is not in fdpPositions.`);
-                                                }
-                                            });
-                                        }
-
-                                        // Backward Compatible Mode
-                                        const backwardCompatibleMode = document.querySelector('.fpd-options .btn.option.active[data-value="Yes"]') ? 'Yes' : 
-                                            document.querySelector('.fpd-options .btn.option.active[data-value="No"]') ? 'No' : 'Not Provided';
-                                        const backwardCompatiblePositions = {
-                                            'Yes': { x: 324, y: 505 },
-                                            'No': { x: 446, y: 505 },
-                                        };
-                                        if (backwardCompatibleMode in backwardCompatiblePositions) {
-                                            currentPage.drawText('X', {
-                                                ...backwardCompatiblePositions[backwardCompatibleMode],
-                                                size: 12,
-                                                font: sourceSansProFont,
-                                                color: fontColor,
-                                            });
-                                        }
-
-                                        // Low Frequency Mode
-                                        const lowFrequencyMode = document.querySelector('.fpd-options .btn.option.active[data-value="Yes"]') ? 'Yes' : 
-                                            document.querySelector('.fpd-options .btn.option.active[data-value="No"]') ? 'No' : 'Not Provided';
-                                        const lowFrequencyPositions = {
-                                            'Yes': { x: 324, y: 488 },
-                                            'No': { x: 446, y: 488 },
-                                        };
-                                        if (lowFrequencyMode in lowFrequencyPositions) {
-                                            currentPage.drawText('X', {
-                                                ...lowFrequencyPositions[lowFrequencyMode],
-                                                size: 12,
-                                                font: sourceSansProFont,
-                                                color: fontColor,
-                                            });
-                                        }
-
-                                        // Transfer Mode
-                                        const transferMode = document.querySelector('.fpd-options .btn.option.active[data-value="Single Lane"]') ? 'Single Lane' : 
-                                            document.querySelector('.fpd-options .btn.option.active[data-value="Dual Lane"]') ? 'Dual Lane' : 'Not Provided';
-                                        const transferModePositions = {
-                                            'Single Lane': { x: 324, y: 471 },
-                                            'Dual Lane': { x: 446, y: 471 },
-                                        };
-                                        if (transferMode in transferModePositions) {
-                                            currentPage.drawText('X', {
-                                                ...transferModePositions[transferMode],
-                                                size: 12,
-                                                font: sourceSansProFont,
-                                                color: fontColor,
-                                            });
-                                        }
-                                    },
-
-                                    /* APIX */
-                                    'APIX': () => {
-                                        const apixOptions = document.querySelectorAll('.apix-options .btn.option.active');
-
-                                        if (apixOptions.length === 0) {
-                                            console.error('No active APIX options found.');
-                                            return;
-                                        }
-
-                                        const apixPositions = {
-                                            'APIX I': { x: 324, y: 523 },
-                                            'APIX II': { x: 409, y: 523 },
-                                            'APIX III': { x: 495, y: 523 },
-                                        };
-
-                                        apixOptions.forEach((option) => {
-                                            const apixValue = option.dataset.value;
-                                            if (apixPositions[apixValue]) {
-                                                currentPage.drawText('X', {
-                                                    ...apixPositions[apixValue],
-                                                    size: 12,
-                                                    font: sourceSansProFont,
-                                                    color: fontColor,
-                                                });
-                                            } else {
-                                                console.error(`APIX value "${apixValue}" is not recognized.`);
-                                            }
-                                        });
-                                    },
-
-                                    /* Maxim */
-                                    'Maxim': () => {
-                                        const gmslOptions = document.querySelectorAll('.gmsl-options .btn.option.active');
-                                        if (gmslOptions.length === 0) {
-                                            console.error('No active GMSL options found.');
-                                        } else {
-                                            gmslOptions.forEach((option) => {
-                                                const gmslValue = option.dataset.value;
-                                                const gmslPositions = {
-                                                    'GMSL I': { x: 324, y: 522 },
-                                                    'GMSL II': { x: 409, y: 522 },
-                                                    'GMSL III': { x: 495, y: 522 },
-                                                };
-
-                                                if (gmslValue in gmslPositions) {
-                                                    currentPage.drawText('X', {
-                                                        ...gmslPositions[gmslValue],
-                                                        size: 12,
-                                                        font: sourceSansProFont,
-                                                        color: fontColor,
-                                                    });
-                                                } else {
-                                                    console.error(`GMSL value "${gmslValue}" is not in gmslPositions.`);
-                                                }
-                                            });
-                                        }
-
-                                        // Bus Width
-                                        const busWidth = document.querySelector('.gmsl-options .btn.option.active[data-value="24 bit"]') ? '24 bit' : 
-                                            document.querySelector('.gmsl-options .btn.option.active[data-value="32 bit"]') ? '32 bit' : 
-                                            document.querySelector('.gmsl-options .btn.option.active[data-value="64 bit"]') ? '64 bit' : 'Not Provided';
-                                        const busWidthPositions = {
-                                            '24 bit': { x: 324, y: 505 },
-                                            '32 bit': { x: 409, y: 505 },
-                                            '64 bit': { x: 495, y: 505 },
-                                        };
-                                        if (busWidth in busWidthPositions) {
-                                            currentPage.drawText('X', {
-                                                ...busWidthPositions[busWidth],
-                                                size: 12,
-                                                font: sourceSansProFont,
-                                                color: fontColor,
-                                                });
-                                            }
-                                        },
-                                    };
-
-                                        if (chipManufacturer in chipOptions) {
-                                            chipOptions[chipManufacturer]();
-                                        } else {
-                                            console.error(`Chip manufacturer "${chipManufacturer}" is not recognized.`);
-                                        }
-                                    } else {
-                                        console.error('No chip manufacturer selected.');
-                                    }
-
-                                    // Additional Information
-                                    const additionalInformation = document.getElementById('useCase')?.value || 'Additional Information Not Provided';
-                                    const additionalInfoPositions = {
-                                        'Texas Instruments': { x: 324, y: 455 },
-                                        'APIX': { x: 324, y: 504 },
-                                        'Maxim': { x: 324, y: 489 },
-                                    };
-
-                                    if (chipManufacturer in additionalInfoPositions) {
-                                        currentPage.drawText(`${additionalInformation}`, {
-                                            ...additionalInfoPositions[chipManufacturer],
-                                            size: 10,
-                                            font: sourceSansProFont,
-                                            color: fontColor,
-                                        });
-                                    } else {
-                                        console.error(`Chip manufacturer "${chipManufacturer}" is not recognized.`);
-                                    }
-                                }
-                            });
-
-                            // Save and download the modified PDF
-                            const pdfBytes = await pdfDoc.save();
-                            const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-                            const link = document.createElement('a');
-                            link.href = URL.createObjectURL(blob);
-                            link.download = 'ATS_Parameter-Checklist_Video_Projects_Modified.pdf';
-                            link.click();
-                        } catch (error) {
-                            console.error('Error modifying the PDF:', error);
-                            alert('An error occurred while generating the PDF. Please try again.');
+                                // Save and download the modified PDF
+                                const pdfBytes = await pdfDoc.save();
+                                const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+                                const link = document.createElement('a');
+                                link.href = URL.createObjectURL(blob);
+                                link.download = 'ATS_Parameter-Checklist_Video_Projects_Modified.pdf';
+                                link.click();
+                            } catch (error) {
+                                console.error('Error processing the PDF:', error);
+                            }
                         }
-                    } else {
-                        console.error('Failed to load the existing PDF. Status:', xhr.status);
-                        alert('Failed to load the existing PDF. Please check the file path.');
                     }
-                };
-                xhr.send();
-            } else {
-                console.error("Please fill in all required fields and select an option from the dropdown.");
-            }
-        });
-    } else {
-        console.error("Submit button not found in the DOM!");
-    }
+                }
+        
 
     function getPdfUrlsByChipManufacturer() {
         const chipManufacturerSelect = document.querySelector('select[name="chipManufacturer[]"]');
@@ -1773,53 +1704,4 @@ document.addEventListener("DOMContentLoaded", function () {
         
         return { regularPdfUrl, uutPdfUrl };
     }
-
-    // Modify the submit button event listener
-    submitButton.addEventListener('click', async function () {
-        const pdfUrls = getPdfUrlsByChipManufacturer();
-        if (!pdfUrls) return;
-
-        const { regularPdfUrl, uutPdfUrl } = pdfUrls;
-
-        try {
-            // Load the regular PDF
-            const regularPdfResponse = await fetch(regularPdfUrl);
-            if (!regularPdfResponse.ok) throw new Error('Failed to load the regular PDF.');
-            const regularPdfData = await regularPdfResponse.arrayBuffer();
-            const regularPdfDoc = await PDFLib.PDFDocument.load(regularPdfData);
-
-            // Load the "_UUT" PDF
-            const uutPdfResponse = await fetch(uutPdfUrl);
-            if (!uutPdfResponse.ok) throw new Error('Failed to load the "_UUT" PDF.');
-            const uutPdfData = await uutPdfResponse.arrayBuffer();
-            const uutPdfDoc = await PDFLib.PDFDocument.load(uutPdfData);
-
-            // Copy pages from the "_UUT" PDF to the regular PDF
-            const uutPages = await regularPdfDoc.copyPages(uutPdfDoc, uutPdfDoc.getPageIndices());
-            uutPages.forEach(page => regularPdfDoc.addPage(page));
-
-            // Modify the combined PDF as needed
-            regularPdfDoc.registerFontkit(window.fontkit);
-            const fontBytes = await fetch('./fonts/SourceSansPro-Regular.otf').then(res => res.arrayBuffer());
-            const sourceSansProFont = await regularPdfDoc.embedFont(fontBytes);
-
-            const pages = regularPdfDoc.getPages();
-
-
-
-
-            
-
-            // Save and download the combined PDF
-            const pdfBytes = await regularPdfDoc.save();
-            const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = 'ATS_Parameter-Checklist_Video_Projects_Modified.pdf';
-            link.click();
-        } catch (error) {
-            console.error('Error generating the PDF:', error);
-            alert('An error occurred while generating the PDF. Please try again.');
-        }
-    });
 });
