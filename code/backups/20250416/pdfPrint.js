@@ -4,7 +4,7 @@ async function generatePDF(formData, additionalPdfPaths) {
     
     window.generatePDF = generatePDF;
 
-    const chipManufacturer = formData.chipManufacturer.replace(/\s+/g, ''); 
+    const chipManufacturer = formData.chipManufacturer || 'Unknown';
     const sinkOrSource = formData.sinkOrSource || 'Unknown';
     const dynamicPdfPath = `./files/print/Checklist_${chipManufacturer}_${sinkOrSource}_UUT.pdf`;
 
@@ -489,6 +489,7 @@ async function generatePDF(formData, additionalPdfPaths) {
                                         color: fontColor,
                                     });
                                 } else {
+                                    console.error(`FPD value "${fpdValue}" is not in fdpPositions.`);
                                 }
                             });
                         }
@@ -740,7 +741,7 @@ async function generatePDF(formData, additionalPdfPaths) {
                                         color: fontColor,
                                     });
                                 } else {
-                                    // Removed console.error for undefined FPD values
+                                    console.error(`FPD value "${fpdValue}" is not in fdpPositions.`);
                                 }
                             });
                         }
@@ -846,7 +847,7 @@ async function generatePDF(formData, additionalPdfPaths) {
                                         color: fontColor,
                                     });
                                 } else {
-                                    // Removed console.error for undefined FPD values
+                                    console.error(`GMSL value "${gmslValue}" is not in gmslPositions.`);
                                 }
                             });
                         }
