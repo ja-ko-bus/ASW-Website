@@ -1,3 +1,4 @@
+// Logo Setup
 document.addEventListener("DOMContentLoaded", function () {
     const logoContainer = document.createElement("div");
     logoContainer.className = "logo-container";
@@ -9,16 +10,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
     logoContainer.appendChild(logoImg);
 
-    // Insert logo container before the <h1>
     const heading = document.querySelector("h1");
     if (heading) {
-            heading.parentNode.insertBefore(logoContainer, heading);
+        heading.parentNode.insertBefore(logoContainer, heading);
+    }
 
-    // Set count to the number of preloaded sections (in this case, 1)
     let inputOutputCount = document.querySelectorAll('.dynamic-input-output').length;
     const dynamicInputsContainer = document.getElementById('dynamicInputsContainer');
     const addInputOutputButton = document.getElementById('addInputOutput');
-    // Removed unused function 'addInputOutput' declaration
+
+    // Add Input/Output Section
     function addInputOutput() {
         inputOutputCount++;
         const newInputOutput = document.createElement('div');
@@ -27,147 +28,143 @@ document.addEventListener("DOMContentLoaded", function () {
         newInputOutput.innerHTML = `
             <h2>UUT Video IN/OUT ${inputOutputCount}</h2>
             <div class="form-group">
-                    <div class="btn-group two-buttons" data-toggle="inputOrOutput-buttons">
-                        <label class="btn btn-option">
-                            <input type="radio" name="inputOrOutput[]" value="Input"> Input
-                        </label>
-                        <label class="btn btn-option">
-                            <input type="radio" name="inputOrOutput[]" value="Output"> Output
-                        </label>
+                <div class="btn-group two-buttons" data-toggle="inputOrOutput-buttons">
+                    <label class="btn btn-option">
+                        <input type="radio" name="inputOrOutput[]" value="Input"> Input
+                    </label>
+                    <label class="btn btn-option">
+                        <input type="radio" name="inputOrOutput[]" value="Output"> Output
+                    </label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Signal Direction:</label>
+                <div class="signal-direction-container">
+                    <select name="icType[]" class="icType" required>
+                        <option value="">Select</option>
+                        <option value="Source">Source</option>
+                        <option value="Sink">Sink IC</option>
+                    </select>
+                    <span class="icType-placeholder" style="display: none; margin-left: 10px;"></span>
+                </div>
+                <div class="additional-source-fields" style="display: none;"></div>
+            </div>
+            <div class="form-group video-connector-type" style="display: none;">
+                <label>Video connector type:</label>
+                <div class="buttons">
+                    <button type="button" class="btn option" data-value="STP">STP</button>
+                    <button type="button" class="btn option" data-value="Coax">Coax</button>
+                    <button type="button" class="btn option" data-value="HMTD">HMTD</button>
+                    <button type="button" class="btn option" data-value="Other">Other</button>
+                </div>
+                <div class="video-connector-images" style="margin-top: 10px;">
+                    <img src="images/STP.png" alt="STP" class="video-connector-image">
+                    <img src="images/Coax.png" alt="Coax" class="video-connector-image">
+                    <img src="images/Hmtd.png" alt="HMTD" class="video-connector-image">
+                    <textarea name="otherVideoConnectorType" placeholder="Please specify" style="margin-top: 10px;"></textarea>
+                </div>
+            </div>
+            <div class="form-group video-connector-pinning" style="display: none;">
+                <label for="pinningConnector">Pinning of video connector:</label>
+                <textarea id="pinningConnector" name="pinningConnector" rows="3"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Power supply of UUT via video cable?</label>
+                <div class="power-supply-wrapper">
+                    <div class="power-supply-buttons">
+                        <span class="btn-option" data-value="Yes">Yes</span>
+                        <span class="btn-option" data-value="No">No</span>
+                    </div>
+                    <div class="form-group power-supply-details" style="display: none;">
+                        <input type="text" name="voltageCurrentConsumption[]" placeholder="Consumption: e.g: 12V / 495mA">
                     </div>
                 </div>
-
-                <div class="form-group">
-                    <label>Signal Direction:</label>
-                    <div class="signal-direction-container">
-                        <select name="icType[]" class="icType" required>
-                            <option value="">Select</option>
-                            <option value="Source">Source</option>
-                            <option value="Sink">Sink IC</option>
-                        </select>
-                        <span class="icType-placeholder" style="display: none; margin-left: 10px;"></span>
-                    </div>
-                        <div class="additional-source-fields" style="display: none;"></div>
-                    </div>
-                    <div class="form-group video-connector-type" style="display: none;">
-                    <label>Video connector type:</label>
-                    <div class="buttons">
-                        <button type="button" class="btn option" data-value="STP">STP</button>
-                        <button type="button" class="btn option" data-value="Coax">Coax</button>
-                        <button type="button" class="btn option" data-value="HMTD">HMTD</button>
-                        <button type="button" class="btn option" data-value="Other">Other</button>
-                    </div>
-                    <div class="video-connector-images" style="margin-top: 10px;">
-                        <img src="images/STP.png" alt="STP" class="video-connector-image">
-                        <img src="images/Coax.png" alt="Coax" class="video-connector-image">
-                        <img src="images/Hmtd.png" alt="HMTD" class="video-connector-image">
-                        <textarea name="otherVideoConnectorType" placeholder="Please specify" style="margin-top: 10px;"></textarea>
-                    </div>
+            </div>
+            <div class="form-group">
+                <label>Pixel Clock:</label>
+                <input type="text" name="pixelClock[]" required>
+            </div>
+            <div class="form-group">
+                <label>Image Width:</label>
+                <input type="number" name="imageWidth[]" required>
+            </div>
+            <div class="form-group">
+                <label>Image Height:</label>
+                <input type="number" name="imageHeight[]" required>
+            </div>
+            <div class="form-group">
+                <label>Frame Rate:</label>
+                <input type="number" name="frameRate[]" required>
+            </div>
+            <div class="form-group">
+                <label>Horizontal Sync Polarity:</label>
+                <div class="btn-group" data-toggle="horizontal-sync-buttons">
+                    <label class="btn btn-option">
+                        <input type="radio" name="horizontalSyncPolarity[]" value="High"> High
+                    </label>
+                    <label class="btn btn-option">
+                        <input type="radio" name="horizontalSyncPolarity[]" value="Low"> Low
+                    </label>
                 </div>
-                <div class="form-group video-connector-pinning" style="display: none;">
-                    <label for="pinningConnector">Pinning of video connector:</label>
-                    <textarea id="pinningConnector" name="pinningConnector" rows="3"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Vertical Sync Polarity:</label>
+                <div class="btn-group" data-toggle="vertical-sync-buttons">
+                    <label class="btn btn-option">
+                        <input type="radio" name="verticalSyncPolarity[]" value="High"> High
+                    </label>
+                    <label class="btn btn-option">
+                        <input type="radio" name="verticalSyncPolarity[]" value="Low"> Low
+                    </label>
                 </div>
-                <div class="form-group">
-                    <label>Power supply of UUT via video cable?</label>
-                    <div class="power-supply-wrapper">
-                        <div class="power-supply-buttons">
-                            <span class="btn-option" data-value="Yes">Yes</span>
-                            <span class="btn-option" data-value="No">No</span>
-                        </div>
-                        <div class="form-group power-supply-details" style="display: none;">
-                            <input type="text" name="voltageCurrentConsumption[]" 
-                            placeholder="Consumption: e.g: 12V / 495mA">
-                        </div>
-                    </div>
-                    <!--Video Parameters-->
-                <br> 
-                <div class="form-group">
-                    <label>Pixel Clock:</label>
-                    <input type="text" name="pixelClock[]" required>
+            </div>
+            <div class="form-group">
+                <label>Data Enable Polarity:</label>
+                <div class="btn-group" data-toggle="data-enable-buttons">
+                    <label class="btn btn-option">
+                        <input type="radio" name="dataEnablePolarity[]" value="High"> High
+                    </label>
+                    <label class="btn btn-option">
+                        <input type="radio" name="dataEnablePolarity[]" value="Low"> Low
+                    </label>
                 </div>
-                <div class="form-group">
-                    <label>Image Width:</label>
-                    <input type="number" name="imageWidth[]" required>
+            </div>
+            <div class="form-group">
+                <label>Pixel Clock Polarity:</label>
+                <div class="btn-group" data-toggle="pixel-clock-polarity-buttons">
+                    <label class="btn btn-option">
+                        <input type="radio" name="pixelClockPolarity[]" value="High"> High
+                    </label>
+                    <label class="btn btn-option">
+                        <input type="radio" name="pixelClockPolarity[]" value="Low"> Low
+                    </label>
                 </div>
-                <div class="form-group">
-                    <label>Image Height:</label>
-                    <input type="number" name="imageHeight[]" required>
+            </div>
+            <div class="form-group">
+                <label>Lock Output Enable:</label>
+                <div class="btn-group" data-toggle="lock-output-enable-buttons">
+                    <label class="btn btn-option">
+                        <input type="radio" name="lockOutputEnable[]" value="High"> High
+                    </label>
+                    <label class="btn btn-option">
+                        <input type="radio" name="lockOutputEnable[]" value="Low"> Low
+                    </label>
                 </div>
-                <div class="form-group">
-                    <label>Frame Rate:</label>
-                    <input type="number" name="frameRate[]" required>
+            </div>
+            <div class="form-group">
+                <label>Lock Polarity:</label>
+                <div class="btn-group" data-toggle="lock-polarity-buttons">
+                    <label class="btn btn-option">
+                        <input type="radio" name="lockPolarity[]" value="High"> High
+                    </label>
+                    <label class="btn btn-option">
+                        <input type="radio" name="lockPolarity[]" value="Low"> Low
+                    </label>
                 </div>
-                <div class="form-group">
-                    <label>Horizontal Sync Polarity:</label>
-                    <div class="btn-group" data-toggle="horizontal-sync-buttons">
-                        <label class="btn btn-option">
-                            <input type="radio" name="horizontalSyncPolarity[]" value="High"> High
-                        </label>
-                        <label class="btn btn-option">
-                            <input type="radio" name="horizontalSyncPolarity[]" value="Low"> Low
-                        </label>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>Vertical Sync Polarity:</label>
-                    <div class="btn-group" data-toggle="vertical-sync-buttons">
-                        <label class="btn btn-option">
-                            <input type="radio" name="verticalSyncPolarity[]" value="High"> High
-                        </label>
-                        <label class="btn btn-option">
-                            <input type="radio" name="verticalSyncPolarity[]" value="Low"> Low
-                        </label>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>Data Enable Polarity:</label>
-                    <div class="btn-group" data-toggle="data-enable-buttons">
-                        <label class="btn btn-option">
-                            <input type="radio" name="dataEnablePolarity[]" value="High"> High
-                        </label>
-                        <label class="btn btn-option">
-                            <input type="radio" name="dataEnablePolarity[]" value="Low"> Low
-                        </label>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>Pixel Clock Polarity:</label>
-                    <div class="btn-group" data-toggle="pixel-clock-polarity-buttons">
-                        <label class="btn btn-option">
-                            <input type="radio" name="pixelClockPolarity[]" value="High"> High
-                        </label>
-                        <label class="btn btn-option">
-                            <input type="radio" name="pixelClockPolarity[]" value="Low"> Low
-                        </label>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>Lock Output Enable:</label>
-                    <div class="btn-group" data-toggle="lock-output-enable-buttons">
-                        <label class="btn btn-option">
-                            <input type="radio" name="lockOutputEnable[]" value="High"> High
-                        </label>
-                        <label class="btn btn-option">
-                            <input type="radio" name="lockOutputEnable[]" value="Low"> Low
-                        </label>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>Lock Polarity:</label>
-                    <div class="btn-group" data-toggle="lock-polarity-buttons">
-                        <label class="btn btn-option">
-                            <input type="radio" name="lockPolarity[]" value="High"> High
-                        </label>
-                        <label class="btn btn-option">
-                            <input type="radio" name="lockPolarity[]" value="Low"> Low
-                        </label>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>Video Format:</label>
-                    <input type="text" name="videoFormat[]" required>
-                </div>
+            </div>
+            <div class="form-group">
+                <label>Video Format:</label>
+                <input type="text" name="videoFormat[]" required>
             </div>
             <div class="form-group">
                 <label>Is HDCP used?</label>
@@ -227,6 +224,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
+    // Apply Event Listeners
     function applyEventListeners(section) {
         console.log("Applying event listeners to a new section");
 
@@ -271,7 +269,6 @@ document.addEventListener("DOMContentLoaded", function () {
             console.log("IC Type select not found!");
         }
 
-
         // Power Supply Toggle
         const powerButtons = section.querySelectorAll(".power-supply-buttons .btn-option");
         if (powerButtons.length > 0) {
@@ -295,7 +292,6 @@ document.addEventListener("DOMContentLoaded", function () {
             console.log("Power supply buttons NOT found!");
         }
 
-
         // Chip Manufacturer Selection
         const chipManufacturerSelect = section.querySelector('.chipManufacturer');
         if (chipManufacturerSelect) {
@@ -308,7 +304,6 @@ document.addEventListener("DOMContentLoaded", function () {
             updateChipOptions(chipManufacturerSelect);
         }
 
-        
         // Video Connector Type Selection
         const videoConnectorButtons = section.querySelectorAll(".buttons .btn.option");
         if (videoConnectorButtons.length > 0) {
@@ -324,25 +319,21 @@ document.addEventListener("DOMContentLoaded", function () {
                     const value = button.dataset.value;
                     
                     if (value === "Other") {
-                        // Hide images and display the textbox at full size
                         imagesContainer.classList.add("hide-images");
                         if (otherTextbox) {
                             otherTextbox.classList.add("visible");
                         }
                     } else {
-                        // Show images and hide the textbox (layout space is preserved)
                         imagesContainer.classList.remove("hide-images");
                         if (otherTextbox) {
                             otherTextbox.classList.remove("visible");
                         }
-                        // Optionally add styling for selected image if desired
                     }
                 });
             });
         } else {
-            console.log("Video connector buttons NOT found!                  ");
+            console.log("Video connector buttons NOT found!");
         }
-
 
         // Sideband Communication Toggle
         const sidebandOptions = section.querySelectorAll(".sideband-option");
@@ -360,7 +351,6 @@ document.addEventListener("DOMContentLoaded", function () {
             console.log("Sideband communication options NOT found!");
         }
 
-
         // Horizontal Sync Polarity
         const horizontalSyncButtons = section.querySelectorAll("[data-toggle='horizontal-sync-buttons'] .btn-option");
         if (horizontalSyncButtons.length > 0) {
@@ -376,7 +366,6 @@ document.addEventListener("DOMContentLoaded", function () {
         } else {
             console.log("Horizontal sync buttons NOT found!");
         }
-
 
         // Vertical Sync Polarity
         const verticalSyncButtons = section.querySelectorAll("[data-toggle='vertical-sync-buttons'] .btn-option");
@@ -410,7 +399,6 @@ document.addEventListener("DOMContentLoaded", function () {
             console.log("Data enable buttons NOT found!");
         }
 
-
         // Desired Hardware Format
         const hardwareFormatButtons = section.querySelectorAll("[data-toggle='button'] .btn-option");
         if (hardwareFormatButtons.length > 0) {
@@ -427,107 +415,103 @@ document.addEventListener("DOMContentLoaded", function () {
             console.log("Hardware format buttons NOT found!");
         }
 
-
-    // HDCP Toggle Fix
-    const hdcpButtons = section.querySelectorAll("[data-toggle='hdcp-buttons'] .btn-option");
-    if (hdcpButtons.length > 0) {
-        console.log("HDCP buttons found");
-        hdcpButtons.forEach(button => {
-            button.addEventListener("click", function () {
-                console.log("HDCP button clicked");
-                const parent = button.closest("[data-toggle='hdcp-buttons']");
-                parent.querySelectorAll(".btn-option").forEach(btn => btn.classList.remove("active"));
-                button.classList.add("active");
+        // HDCP Toggle Fix
+        const hdcpButtons = section.querySelectorAll("[data-toggle='hdcp-buttons'] .btn-option");
+        if (hdcpButtons.length > 0) {
+            console.log("HDCP buttons found");
+            hdcpButtons.forEach(button => {
+                button.addEventListener("click", function () {
+                    console.log("HDCP button clicked");
+                    const parent = button.closest("[data-toggle='hdcp-buttons']");
+                    parent.querySelectorAll(".btn-option").forEach(btn => btn.classList.remove("active"));
+                    button.classList.add("active");
+                });
             });
-        });
-    } else {
-        console.log("HDCP buttons NOT found!");
-    }
+        } else {
+            console.log("HDCP buttons NOT found!");
+        }
 
-    // Pixel Clock Polarity Buttons
-    const pixelClockPolarityButtons = section.querySelectorAll("[data-toggle='pixel-clock-polarity-buttons'] .btn-option");
-    if (pixelClockPolarityButtons.length > 0) {
-        console.log("Pixel Clock Polarity buttons found");
-        pixelClockPolarityButtons.forEach(button => {
-            button.addEventListener('click', function () {
-                // Remove active class from all buttons in this group
-                pixelClockPolarityButtons.forEach(btn => btn.classList.remove('active'));
-                // Add active class to the clicked button
-                button.classList.add('active');
-                // Set the underlying radio input to checked
-                let radio = button.querySelector("input[type='radio']");
-                if (radio) {
-                    radio.checked = true;
-                }
+        // Pixel Clock Polarity Buttons
+        const pixelClockPolarityButtons = section.querySelectorAll("[data-toggle='pixel-clock-polarity-buttons'] .btn-option");
+        if (pixelClockPolarityButtons.length > 0) {
+            console.log("Pixel Clock Polarity buttons found");
+            pixelClockPolarityButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    pixelClockPolarityButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    let radio = button.querySelector("input[type='radio']");
+                    if (radio) {
+                        radio.checked = true;
+                    }
+                });
             });
-        });
-    } else {
-        console.log("Pixel Clock Polarity buttons NOT found!");
-    }
+        } else {
+            console.log("Pixel Clock Polarity buttons NOT found!");
+        }
 
-    // Lock Output Enable Buttons
-    const lockOutputEnableButtons = section.querySelectorAll("[data-toggle='lock-output-enable-buttons'] .btn-option");
-    if (lockOutputEnableButtons.length > 0) {
-        console.log("Lock Output Enable buttons found");
-        lockOutputEnableButtons.forEach(button => {
-            button.addEventListener("click", function (e) {
-                e.preventDefault();
-                const parent = button.closest("[data-toggle='lock-output-enable-buttons']");
-                parent.querySelectorAll(".btn-option").forEach(btn => btn.classList.remove("active"));
-                button.classList.add("active");
-                let radio = button.querySelector("input[type='radio']");
-                if (radio) {
-                    radio.checked = true;
-                }
+        // Lock Output Enable Buttons
+        const lockOutputEnableButtons = section.querySelectorAll("[data-toggle='lock-output-enable-buttons'] .btn-option");
+        if (lockOutputEnableButtons.length > 0) {
+            console.log("Lock Output Enable buttons found");
+            lockOutputEnableButtons.forEach(button => {
+                button.addEventListener("click", function (e) {
+                    e.preventDefault();
+                    const parent = button.closest("[data-toggle='lock-output-enable-buttons']");
+                    parent.querySelectorAll(".btn-option").forEach(btn => btn.classList.remove("active"));
+                    button.classList.add("active");
+                    let radio = button.querySelector("input[type='radio']");
+                    if (radio) {
+                        radio.checked = true;
+                    }
+                });
             });
-        });
-    } else {
-        console.log("Lock Output Enable buttons NOT found!");
-    }
+        } else {
+            console.log("Lock Output Enable buttons NOT found!");
+        }
 
-    // Lock Polarity Buttons
-    const lockPolarityButtons = section.querySelectorAll("[data-toggle='lock-polarity-buttons'] .btn-option");
-    if (lockPolarityButtons.length > 0) {
-        console.log("Lock Polarity buttons found");
-        lockPolarityButtons.forEach(button => {
-            button.addEventListener("click", function (e) {
-                e.preventDefault();
-                const parent = button.closest("[data-toggle='lock-polarity-buttons']");
-                parent.querySelectorAll(".btn-option").forEach(btn => btn.classList.remove("active"));
-                button.classList.add("active");
-                let radio = button.querySelector("input[type='radio']");
-                if (radio) {
-                    radio.checked = true;
-                }
+        // Lock Polarity Buttons
+        const lockPolarityButtons = section.querySelectorAll("[data-toggle='lock-polarity-buttons'] .btn-option");
+        if (lockPolarityButtons.length > 0) {
+            console.log("Lock Polarity buttons found");
+            lockPolarityButtons.forEach(button => {
+                button.addEventListener("click", function (e) {
+                    e.preventDefault();
+                    const parent = button.closest("[data-toggle='lock-polarity-buttons']");
+                    parent.querySelectorAll(".btn-option").forEach(btn => btn.classList.remove("active"));
+                    button.classList.add("active");
+                    let radio = button.querySelector("input[type='radio']");
+                    if (radio) {
+                        radio.checked = true;
+                    }
+                });
             });
-        });
-    } else {
-        console.log("Lock Polarity buttons NOT found!");
-    }
+        } else {
+            console.log("Lock Polarity buttons NOT found!");
+        }
 
-    // Input/Output Toggle
-    const inputOutputButtons = section.querySelectorAll("[data-toggle='inputOrOutput-buttons'] .btn-option");
-    if (inputOutputButtons.length > 0) {
-        console.log("Input/Output buttons found");
-        inputOutputButtons.forEach(button => {
-            button.addEventListener("click", function () {
-                console.log("Input/Output button clicked");
-                const parent = button.closest("[data-toggle='inputOrOutput-buttons']");
-                parent.querySelectorAll(".btn-option").forEach(btn => btn.classList.remove("active"));
-                button.classList.add("active");
+        // Input/Output Toggle
+        const inputOutputButtons = section.querySelectorAll("[data-toggle='inputOrOutput-buttons'] .btn-option");
+        if (inputOutputButtons.length > 0) {
+            console.log("Input/Output buttons found");
+            inputOutputButtons.forEach(button => {
+                button.addEventListener("click", function () {
+                    console.log("Input/Output button clicked");
+                    const parent = button.closest("[data-toggle='inputOrOutput-buttons']");
+                    parent.querySelectorAll(".btn-option").forEach(btn => btn.classList.remove("active"));
+                    button.classList.add("active");
 
-                const radio = button.querySelector("input[type='radio']");
-                if (radio) {
-                    radio.checked = true;
-                }
+                    const radio = button.querySelector("input[type='radio']");
+                    if (radio) {
+                        radio.checked = true;
+                    }
+                });
             });
-        });
-    } else {
-        console.log("Input/Output buttons NOT found!");
-    }
+        } else {
+            console.log("Input/Output buttons NOT found!");
+        }
     }
 
-    //Update Chip Options
+    // Update Chip Options
     function updateChipOptions(selectElement) {
         const chipManufacturer = selectElement.value;
         const parameterContainer = selectElement.closest(".video-parameter");
@@ -547,7 +531,6 @@ document.addEventListener("DOMContentLoaded", function () {
             if (gmslOptions) gmslOptions.style.display = "block";
         }
 
-        // Attach event listeners to the newly added chip-specific buttons
         const chipOptionButtons = parameterContainer.querySelectorAll(".chip-options .btn.option");
         if (chipOptionButtons.length > 0) {
             console.log("Chip option buttons found");
@@ -574,7 +557,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         if (button.dataset.value === "Yes") {
                             console.log("backwards compatibility mode");
                         } else if (button.dataset.value === "No") {
-                            console.log(""); // Do nothing or clear the console
+                            console.log("");
                         }
                     });
                 });
@@ -584,10 +567,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     addInputOutputButton.addEventListener('click', addInputOutput);
 
-
-    // Attach event listeners to the initial elements
     applyEventListeners(document);
-
 
     document.addEventListener("click", function (event) {
         if (event.target.classList.contains("remove-video-parameter")) {
@@ -595,28 +575,23 @@ document.addEventListener("DOMContentLoaded", function () {
             if (sectionToRemove) {
                 sectionToRemove.remove();
             }
-    
-            // Get all remaining sections
+
             const remainingSections = document.querySelectorAll(".dynamic-input-output");
 
-            // Renumber all remaining sections
             remainingSections.forEach((section, index) => {
-                const newNumber = index + 1; // Start from 1
+                const newNumber = index + 1;
                 section.setAttribute("data-index", newNumber);
-    
-                // Update heading text
+
                 const heading = section.querySelector("h2");
                 if (heading) heading.textContent = `UUT Video IN/OUT ${newNumber}`;
-    
-                // Update remove button text & data-index
+
                 const removeButton = section.querySelector(".remove-video-parameter");
                 if (removeButton) {
                     removeButton.setAttribute("data-index", newNumber);
                     removeButton.textContent = `Remove UUT Video IN/OUT ${newNumber}`;
                 }
             });
-    
-            // Update inputOutputCount to reflect the latest count
+
             inputOutputCount = remainingSections.length;
         }
     });
@@ -626,12 +601,10 @@ document.addEventListener("DOMContentLoaded", function () {
             const display = document.getElementById(slider.id + 'Display');
             if (display) {
                 display.textContent = slider.value;
-               
             }
         });
         slider.dispatchEvent(new Event('input'));
     });
-  
 
     document.querySelectorAll('.more-button').forEach(button => {
         button.addEventListener('click', function () {
@@ -650,7 +623,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-
     const plannedNumber = document.getElementById('plannedQuantityEditable');
     const plannedSlider = document.getElementById('plannedQuantity');
     const plannedDisplay = document.getElementById('plannedQuantityDisplay');
@@ -664,17 +636,14 @@ document.addEventListener("DOMContentLoaded", function () {
         plannedDisplay.textContent = plannedSlider.value;
     });
 
-
     document.querySelectorAll('.slider-wrapper').forEach(wrapper => {
         attachSliderSync(wrapper);
     });
 
-    // Toggle tooltip on click for info icon
     const infoIcons = document.querySelectorAll(".info-icon");
     infoIcons.forEach(icon => {
         icon.addEventListener("click", function (event) {
             event.stopPropagation();
-            // Toggle visible class on the associated tooltip (assuming it is the next sibling)
             const tooltip = icon.nextElementSibling;
             if (tooltip && tooltip.classList.contains("tooltip") && tooltip.classList.contains("textbox")) {
                 tooltip.classList.toggle("visible");
@@ -682,23 +651,19 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-    // Hide tooltip if clicking outside
-        document.addEventListener("click", function () {
-            document.querySelectorAll(".tooltip.textbox.visible").forEach(tooltip => {
-                tooltip.classList.remove("visible");
-            });
+    document.addEventListener("click", function () {
+        document.querySelectorAll(".tooltip.textbox.visible").forEach(tooltip => {
+            tooltip.classList.remove("visible");
         });
-    }
-    
-    // Sliders
+    });
+
+    // Attach Slider Sync
     function attachSliderSync(wrapper) {
         const numberInput = wrapper.querySelector('input[type="number"]');
         const slider = wrapper.querySelector('input[type="range"]');
         const display = wrapper.querySelector('.slider-display');
         if (numberInput && slider && display) {
-        
             display.textContent = numberInput.value;
-            
             numberInput.addEventListener('input', function() {
                 slider.value = numberInput.value;
                 display.textContent = numberInput.value;
@@ -708,9 +673,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 display.textContent = slider.value;
             });
         }
-    };
+    }
 
-    // Desired Hardware Format Buttons
     const hardwareFormatButtons = document.querySelectorAll(".hardware-format-options .btn-option");
     if (hardwareFormatButtons.length > 0) {
         console.log("Hardware format buttons found");
@@ -725,9 +689,133 @@ document.addEventListener("DOMContentLoaded", function () {
         console.log("Hardware format buttons NOT found!");
     }
 
+    const form = document.getElementById('videoProjectForm');
+
+    // Highlight Errors
+    function highlightErrors() {
+        const form = document.getElementById('videoProjectForm');
+        const inputs = form.querySelectorAll('input:required, select:required, textarea:required');
+        const visibleInputs = Array.from(inputs).filter(input => input.offsetParent !== null);
+        let firstErrorElement = null;
+
+        visibleInputs.forEach(input => {
+            if (!input.value.trim()) {
+                input.classList.add('error-highlight');
+                if (!firstErrorElement) {
+                    firstErrorElement = input;
+                }
+            }
+        });
+
+        const buttons = form.querySelectorAll('.btn-option');
+        buttons.forEach(button => {
+            button.classList.remove('error-highlight');
+        });
+
+        const checkboxes = form.querySelectorAll('input[type="checkbox"]');
+        checkboxes.forEach(checkbox => {
+            const label = checkbox.closest('label');
+            if (label && !checkbox.checked) {
+                label.classList.add('error-highlight');
+                if (!firstErrorElement) {
+                    firstErrorElement = label;
+                }
+            }
+        });
+
+        const buttonGroups = form.querySelectorAll(".btn-group, .sideband-group");
+        buttonGroups.forEach(group => {
+            const buttons = group.querySelectorAll(".btn-option");
+            const isMultiChoice = group.classList.contains("sideband-group");
+
+            if (isMultiChoice) {
+                const anyActive = Array.from(buttons).some(button => button.classList.contains("active"));
+                if (!anyActive) {
+                    buttons.forEach(button => {
+                        button.style.color = "red";
+                    });
+                    if (!firstErrorElement) {
+                        firstErrorElement = group;
+                    }
+                }
+            } else {
+                const activeButton = group.querySelector(".btn-option.active");
+                if (!activeButton) {
+                    buttons.forEach(button => {
+                        button.style.color = "red";
+                    });
+                    if (!firstErrorElement) {
+                        firstErrorElement = group;
+                    }
+                }
+            }
+        });
+
+        const hardwareFormatButtons = form.querySelectorAll(".hardware-format-options .btn-option");
+        hardwareFormatButtons.forEach(button => {
+            if (button.offsetParent !== null && !button.classList.contains("active")) {
+                button.classList.add("error-highlight");
+                if (!firstErrorElement) {
+                    firstErrorElement = button;
+                }
+            }
+        });
+
+        const videoConnectorTypeBox = form.querySelector(".video-connector-type");
+        if (videoConnectorTypeBox && videoConnectorTypeBox.offsetParent !== null) {
+            const activeButton = videoConnectorTypeBox.querySelector(".btn.option.active");
+            if (!activeButton) {
+                videoConnectorTypeBox.classList.add("error-highlight");
+                if (!firstErrorElement) {
+                    firstErrorElement = videoConnectorTypeBox;
+                }
+            }
+        }
+
+        const videoConnectorButtons = form.querySelectorAll(".video-connector-type .btn.option");
+        videoConnectorButtons.forEach(button => {
+            if (button.offsetParent !== null && !button.classList.contains("active")) {
+                button.classList.add("error-highlight");
+                if (!firstErrorElement) {
+                    firstErrorElement = button;
+                }
+            }
+        });
+
+        if (firstErrorElement) {
+            firstErrorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }
+
+    // Submit Form
     document.getElementById('submitForm').addEventListener('click', async function (e) {
         e.preventDefault();
+
+        const inputs = form.querySelectorAll('input:required, select:required, textarea:required');
+        const visibleInputs = Array.from(inputs).filter(input => input.offsetParent !== null);
+        let hasErrors = false;
+
+        visibleInputs.forEach(input => {
+            if (!input.value.trim()) { 
+                input.classList.add('error-highlight');
+                hasErrors = true;
+            }
+        });
+
+        if (hasErrors) {
+            highlightErrors(); 
+            return; 
+        }
+
+        const userConfirmed = confirm("Submitting form, are you sure?");
+        if (!userConfirmed) {
+            return; 
+        }
+
         console.log("Submit button clicked");
+
+        document.querySelectorAll('.error-highlight').forEach(el => el.classList.remove('error-highlight'));
+        document.querySelectorAll('.error-text').forEach(el => el.remove());
 
         const chipManufacturer = document.querySelector('select[name="chipManufacturer[]"]')?.value;
         const sinkOrSource = document.querySelector('select[name="icType[]"]')?.value;
@@ -746,9 +834,97 @@ document.addEventListener("DOMContentLoaded", function () {
             useCase,
             plannedQuantity
         };
-    
+
         const additionalPdfPaths = [];
-    
-        await generatePDF(formData, additionalPdfPaths);
-    });    
+
+        visibleInputs.forEach(input => {
+            if (!input.value.trim()) {
+                input.classList.add('error-highlight');
+                hasErrors = true;
+            }
+        });
+
+        if (!hasErrors) {
+            await generatePDF(formData, additionalPdfPaths);
+        } else if (firstErrorElement) {
+            firstErrorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    });
+
+    document.getElementById('submitForm').addEventListener('click', function () {
+        const form = document.getElementById('videoProjectForm');
+
+        const inputs = form.querySelectorAll('input:required, select:required, textarea:required');
+        inputs.forEach(input => {
+            if (input.value.trim()) {
+                input.classList.remove('error-highlight');
+            }
+        });
+
+        const checkboxes = form.querySelectorAll('input[type="checkbox"]');
+        checkboxes.forEach(checkbox => {
+            const label = checkbox.closest('label');
+            if (label && checkbox.checked) {
+                label.classList.remove('error-highlight');
+            }
+        });
+
+        const buttonGroups = form.querySelectorAll(".btn-group, .sideband-group");
+        buttonGroups.forEach(group => {
+            const buttons = group.querySelectorAll(".btn-option");
+            const isMultiChoice = group.classList.contains("sideband-group");
+
+            if (isMultiChoice) {
+                const anyActive = Array.from(buttons).some(button => button.classList.contains("active"));
+                if (anyActive) {
+                    buttons.forEach(button => button.style.color = "");
+                }
+            } else {
+                const activeButton = group.querySelector(".btn-option.active");
+                if (activeButton) {
+                    buttons.forEach(button => button.style.color = "");
+                }
+            }
+        });
+    });
+
+    const buttonGroups = form.querySelectorAll(".btn-group, .sideband-group");
+    buttonGroups.forEach(group => {
+        const buttons = group.querySelectorAll(".btn-option");
+        const isMultiChoice = group.classList.contains("sideband-group");
+
+        buttons.forEach(button => {
+            button.addEventListener('click', function () {
+                if (isMultiChoice) {
+                    const anyActive = Array.from(buttons).some(btn => btn.classList.contains("active"));
+                    if (anyActive) {
+                        group.querySelectorAll(".btn-option").forEach(btn => btn.style.color = "");
+                    }
+                } else {
+                    group.querySelectorAll(".btn-option").forEach(btn => btn.classList.remove("active"));
+                    button.classList.add("active");
+                    group.querySelectorAll(".btn-option").forEach(btn => btn.style.color = "");
+                }
+            });
+        });
+    });
+
+    const checkboxes = form.querySelectorAll('input[type="checkbox"]');
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function () {
+            const label = checkbox.closest('label');
+            if (label && checkbox.checked) {
+                label.classList.remove('error-highlight');
+            }
+        });
+    });
+
+    const inputs = form.querySelectorAll('input:required, select:required, textarea:required');
+    inputs.forEach(input => {
+        input.addEventListener('input', function () {
+            if (input.value.trim()) {
+                input.classList.remove('error-highlight');
+            }
+        });
+    });
 });

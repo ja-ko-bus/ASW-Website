@@ -10,7 +10,6 @@ async function generatePDF(formData, additionalPdfPaths) {
 
     const dynamicPdfResponse = await fetch(dynamicPdfPath);
     if (!dynamicPdfResponse.ok) {
-        console.error(`Failed to load the dynamic PDF from ${dynamicPdfPath}`);
         return;
     }
     const dynamicPdfData = await dynamicPdfResponse.arrayBuffer();
@@ -23,7 +22,6 @@ async function generatePDF(formData, additionalPdfPaths) {
     const firstPagePath = './files/print/Checklist_firstPage.pdf';
     const firstPageResponse = await fetch(firstPagePath);
     if (!firstPageResponse.ok) {
-        console.error(`Failed to load the first page from ${firstPagePath}`);
         return;
     }
     const firstPageData = await firstPageResponse.arrayBuffer();
@@ -44,7 +42,7 @@ async function generatePDF(formData, additionalPdfPaths) {
 
     const customerName = document.getElementById('customerName')?.value || 'Customer Name Not Provided';
     firstPage.drawText(customerName, {
-        x: 324,
+        x: 328,
         y: 639,
         size: fontSize,
         font: sourceSansProFont,
@@ -53,7 +51,7 @@ async function generatePDF(formData, additionalPdfPaths) {
 
     const contactPerson = document.getElementById('contactPerson')?.value || 'Contact Person Not Provided';
     firstPage.drawText(`${contactPerson}`, {
-        x: 324,
+        x: 328,
         y: 608,
         size: fontSize,
         font: sourceSansProFont,
@@ -62,7 +60,7 @@ async function generatePDF(formData, additionalPdfPaths) {
 
     const projectTitle = document.getElementById('projectTitle')?.value || 'Project Title Not Provided';
     firstPage.drawText(`${projectTitle}`, {
-        x: 324,
+        x: 328,
         y: 576,
         size: fontSize,
         font: sourceSansProFont,
@@ -71,7 +69,7 @@ async function generatePDF(formData, additionalPdfPaths) {
 
     const useCase = document.getElementById('useCase')?.value || 'Use Case Not Provided';
     firstPage.drawText(`${useCase}`, {
-        x: 324,
+        x: 328,
         y: 544,
         size: fontSize,
         font: sourceSansProFont,
@@ -80,7 +78,7 @@ async function generatePDF(formData, additionalPdfPaths) {
 
     const plannedQuantity = document.getElementById('plannedQuantity')?.value || 'Planned Quantity Not Provided';
     firstPage.drawText(`${plannedQuantity}`, {
-        x: 324,
+        x: 328,
         y: 495,
         size: fontSize,
         font: sourceSansProFont,
@@ -104,7 +102,7 @@ async function generatePDF(formData, additionalPdfPaths) {
 
     const numberInputs = document.getElementById('numberInputsEditable')?.value || '1';
     firstPage.drawText(`${numberInputs}`, {
-        x: 324,
+        x: 328,
         y: 460,
         size: fontSize,
         font: sourceSansProFont,
@@ -113,7 +111,7 @@ async function generatePDF(formData, additionalPdfPaths) {
 
     const numberOutputs = document.getElementById('numberOutputsEditable')?.value || '1';
     firstPage.drawText(`${numberOutputs}`, {
-        x: 324,
+        x: 328,
         y: 443,
         size: fontSize,
         font: sourceSansProFont,
@@ -127,34 +125,52 @@ async function generatePDF(formData, additionalPdfPaths) {
     const videoSections = document.querySelectorAll('.dynamic-input-output');
     videoSections.forEach((section, index) => {
         let currentPage;
-        if (index < pages.length) {
-            currentPage = pages[index + 1]; // Use existing pages starting from the second page
+
+        // Ensure a new page is added for each UUT beyond the first one
+        if (index + 1 >= pages.length) {
+            currentPage = pdfDoc.addPage();
         } else {
-            currentPage = pdfDoc.addPage(); // Add a new page if needed
+            currentPage = pages[index + 1];
         }
 
         if (!currentPage) {
-            console.error(`Failed to initialize page for section ${index + 1}`);
             return;
         }
 
         const inputOrOutput = section.querySelector('input[name="inputOrOutput[]"]:checked')?.value || '';
+
         const icType = section.querySelector('select[name="icType[]"]')?.value || '';
+
         const videoConnectorType = section.querySelector('.video-connector-type .btn.option.active')?.dataset.value || '';
+
         const otherText = section.querySelector('textarea[name="otherVideoConnectorType"]')?.value || '';
+
         const pinningConnector = section.querySelector('textarea[name="pinningConnector"]')?.value || '';
+
         const powerSupply = section.querySelector('.power-supply-buttons .btn-option.active')?.dataset.value || '';
+
         const voltageCurrent = section.querySelector('.power-supply-details input[name="voltageCurrentConsumption[]"]')?.value || '';
+
         const pixelClock = section.querySelector('input[name="pixelClock[]"]')?.value || '';
+
         const imageWidth = section.querySelector('input[name="imageWidth[]"]')?.value || '';
+
         const imageHeight = section.querySelector('input[name="imageHeight[]"]')?.value || '';
+
         const frameRate = section.querySelector('input[name="frameRate[]"]')?.value || '';
+
         const horizontalSync = section.querySelector('input[name="horizontalSyncPolarity[]"]:checked')?.value || '';
+
         const verticalSync = section.querySelector('input[name="verticalSyncPolarity[]"]:checked')?.value || '';
+
         const dataEnable = section.querySelector('input[name="dataEnablePolarity[]"]:checked')?.value || '';
+
         const pixelClockPolarity = section.querySelector('input[name="pixelClockPolarity[]"]:checked')?.value || '';
+
         const lockOutputEnable = section.querySelector('input[name="lockOutputEnable[]"]:checked')?.value || '';
+
         const lockPolarity = section.querySelector('input[name="lockPolarity[]"]:checked')?.value || '';
+
         const videoFormat = section.querySelector('input[name="videoFormat[]"]')?.value || '';
 
         // Title for each section
@@ -217,7 +233,7 @@ async function generatePDF(formData, additionalPdfPaths) {
                     color: fontColor,
                 });
             }
-
+            
             // Power Supply
             if (powerSupply === 'Yes') {
                 currentPage.drawText('X', {
@@ -228,8 +244,8 @@ async function generatePDF(formData, additionalPdfPaths) {
                     color: fontColor,
                 });
                 currentPage.drawText(`Voltage/Current: ${voltageCurrent}`, {
-                    x: 345,
-                    y: 558,
+                    x: 353,
+                    y: 556,
                     size: 7,
                     font: sourceSansProFont,
                     color: fontColor,
@@ -471,7 +487,6 @@ async function generatePDF(formData, additionalPdfPaths) {
                     'Texas Instruments': () => {
                         const fpdOptions = document.querySelectorAll('.fpd-options .btn.option.active');
                         if (fpdOptions.length === 0) {
-                            console.error('No active FPD options found.');
                         } else {
                             fpdOptions.forEach((option) => {
                                 const fpdValue = option.dataset.value;
@@ -547,7 +562,6 @@ async function generatePDF(formData, additionalPdfPaths) {
                         const apixOptions = document.querySelectorAll('.apix-options .btn.option.active');
 
                         if (apixOptions.length === 0) {
-                            console.error('No active APIX options found.');
                             return;
                         }
 
@@ -567,7 +581,6 @@ async function generatePDF(formData, additionalPdfPaths) {
                                     color: fontColor,
                                 });
                             } else {
-                                console.error(`APIX value "${apixValue}" is not recognized.`);
                             }
                         });
                     },
@@ -576,7 +589,6 @@ async function generatePDF(formData, additionalPdfPaths) {
                     'Maxim': () => {
                         const gmslOptions = document.querySelectorAll('.gmsl-options .btn.option.active');
                         if (gmslOptions.length === 0) {
-                            console.error('No active GMSL options found.');
                         } else {
                             gmslOptions.forEach((option) => {
                                 const gmslValue = option.dataset.value;
@@ -594,7 +606,6 @@ async function generatePDF(formData, additionalPdfPaths) {
                                         color: fontColor,
                                     });
                                 } else {
-                                    console.error(`GMSL value "${gmslValue}" is not in gmslPositions.`);
                                 }
                             });
                         }
@@ -622,10 +633,8 @@ async function generatePDF(formData, additionalPdfPaths) {
                 if (chipManufacturer in chipOptions) {
                     chipOptions[chipManufacturer]();
                 } else {
-                    console.error(`Chip manufacturer "${chipManufacturer}" is not recognized.`);
                 }
             } else {
-                console.error('No chip manufacturer selected.');
             }
 
             // Additional Information
@@ -644,7 +653,6 @@ async function generatePDF(formData, additionalPdfPaths) {
                     color: fontColor,
                 });
             } else {
-                console.error(`Chip manufacturer "${chipManufacturer}" is not recognized.`);
             }
         } else {
             currentPage.drawText('Sink IC (Deserializer)', {
@@ -722,7 +730,6 @@ async function generatePDF(formData, additionalPdfPaths) {
                     'Texas Instruments': () => {
                         const fpdOptions = document.querySelectorAll('.fpd-options .btn.option.active');
                         if (fpdOptions.length === 0) {
-                            console.error('No active FPD options found.');
                         } else {
                             fpdOptions.forEach((option) => {
                                 const fpdValue = option.dataset.value;
@@ -740,7 +747,6 @@ async function generatePDF(formData, additionalPdfPaths) {
                                         color: fontColor,
                                     });
                                 } else {
-                                    // Removed console.error for undefined FPD values
                                 }
                             });
                         }
@@ -799,7 +805,6 @@ async function generatePDF(formData, additionalPdfPaths) {
                         const apixOptions = document.querySelectorAll('.apix-options .btn.option.active');
 
                         if (apixOptions.length === 0) {
-                            console.error('No active APIX options found.');
                             return;
                         }
 
@@ -819,7 +824,6 @@ async function generatePDF(formData, additionalPdfPaths) {
                                     color: fontColor,
                                 });
                             } else {
-                                console.error(`APIX value "${apixValue}" is not recognized.`);
                             }
                         });
                     },
@@ -828,7 +832,6 @@ async function generatePDF(formData, additionalPdfPaths) {
                     'Maxim': () => {
                         const gmslOptions = document.querySelectorAll('.gmsl-options .btn.option.active');
                         if (gmslOptions.length === 0) {
-                            console.error('No active GMSL options found.');
                         } else {
                             gmslOptions.forEach((option) => {
                                 const gmslValue = option.dataset.value;
@@ -846,7 +849,6 @@ async function generatePDF(formData, additionalPdfPaths) {
                                         color: fontColor,
                                     });
                                 } else {
-                                    // Removed console.error for undefined FPD values
                                 }
                             });
                         }
@@ -874,10 +876,8 @@ async function generatePDF(formData, additionalPdfPaths) {
                 if (chipManufacturer in chipOptions) {
                     chipOptions[chipManufacturer]();
                 } else {
-                    console.error(`Chip manufacturer "${chipManufacturer}" is not recognized.`);
                 }
             } else {
-                console.error('No chip manufacturer selected.');
             }
 
             // Additional Information
@@ -896,7 +896,6 @@ async function generatePDF(formData, additionalPdfPaths) {
                     color: fontColor,
                 });
             } else {
-                console.error(`Chip manufacturer "${chipManufacturer}" is not recognized.`);
             }
         }
     });

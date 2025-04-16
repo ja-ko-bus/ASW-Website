@@ -4,7 +4,7 @@ async function generatePDF(formData, additionalPdfPaths) {
     
     window.generatePDF = generatePDF;
 
-    const chipManufacturer = formData.chipManufacturer || 'Unknown';
+    const chipManufacturer = formData.chipManufacturer.replace(/\s+/g, ''); 
     const sinkOrSource = formData.sinkOrSource || 'Unknown';
     const dynamicPdfPath = `./files/print/Checklist_${chipManufacturer}_${sinkOrSource}_UUT.pdf`;
 
@@ -228,8 +228,8 @@ async function generatePDF(formData, additionalPdfPaths) {
                     color: fontColor,
                 });
                 currentPage.drawText(`Voltage/Current: ${voltageCurrent}`, {
-                    x: 345,
-                    y: 558,
+                    x: 353,
+                    y: 556,
                     size: 7,
                     font: sourceSansProFont,
                     color: fontColor,
@@ -489,7 +489,6 @@ async function generatePDF(formData, additionalPdfPaths) {
                                         color: fontColor,
                                     });
                                 } else {
-                                    console.error(`FPD value "${fpdValue}" is not in fdpPositions.`);
                                 }
                             });
                         }
@@ -741,7 +740,7 @@ async function generatePDF(formData, additionalPdfPaths) {
                                         color: fontColor,
                                     });
                                 } else {
-                                    console.error(`FPD value "${fpdValue}" is not in fdpPositions.`);
+                                    // Removed console.error for undefined FPD values
                                 }
                             });
                         }
@@ -847,7 +846,7 @@ async function generatePDF(formData, additionalPdfPaths) {
                                         color: fontColor,
                                     });
                                 } else {
-                                    console.error(`GMSL value "${gmslValue}" is not in gmslPositions.`);
+                                    // Removed console.error for undefined FPD values
                                 }
                             });
                         }
