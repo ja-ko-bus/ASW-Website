@@ -43,7 +43,50 @@ Ziel der Arbeit:
 	-> Verantwortung übernehmen für wichtige Projekte
 	
 -------------------------------------------------------------------------------------------------
+Hauptteil
+1.	Datenerfassung der Vergangenheit
+1.1	PDF-Krise
+- alter Stand: interaktiv ja, aber echt hässlich und altmodisch
+- Probleme: Seiten manuell dazu, ALLE Informationen werden gezeigt obwohl garnicht alles nötig ist, etc
+- Kund*innen schaffen das Ausfüllen nicht -> zu viele unnötige Infos
+ 
+1.2	Etwas neues muss her
+- Grundidee (bild skizze)
+- Anforderungen: interaktive Website
+- einfacher für fachfremde Kunden
+- ästhetische Gestaltung mit Bildern/Logos
 
+2.	ASW-Website
+2.1	Grundstruktur, Plugins und Neuheiten
+- html, css, javascript
+- extensions bei vscode
+- Grundstruktur + Idee dahinter
+
+2.2	Funktionen und ihre Umsetzung
+- welche Funktionen wurden angefragt und wie wurden diese Umgesetzt (Bilder, Abhängigkeiten,
+  eigene Ideen: error message, tooltips, PDF Druck) -> vielleicht 2.2.X
+- Funktionen die es letztendlich erstmal nicht reingeschafft haben (email relay, eigene PDF bauen, etc)
+- html console mit log fehlermeldungen war ein segen
+
+2.3	Herausforderungen
+- Unwissenheit über Funktionen
+- Code Struktur
+- Was war besonders schwer?
+
+3.	Vergleich: Vorher / Nachher
+- Welche Probleme wurden gelöst
+- War vorher etwas besser?
+
+4. Zukunftsausblick
+- Email Relay
+- Design
+- wo wird man das tool finden?
+
+5. Fazit
+- Hat alles so geklappt wie ich es wollte?
+- Was würde ich nächstes Mal anders machen? 
+- Was habe ich alles gelernt?
+- Wurden die Erwartungen erfüllt?
 
 
 
