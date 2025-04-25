@@ -27,193 +27,308 @@ document.addEventListener("DOMContentLoaded", function () {
         newInputOutput.setAttribute('data-index', inputOutputCount);
         newInputOutput.innerHTML = `
             <h2>UUT Video IN/OUT ${inputOutputCount}</h2>
-            <div class="form-group">
-                <div class="btn-group two-buttons" data-toggle="inputOrOutput-buttons">
-                    <label class="btn btn-option">
-                        <input type="radio" name="inputOrOutput[]" value="Input"> Input
-                    </label>
-                    <label class="btn btn-option">
-                        <input type="radio" name="inputOrOutput[]" value="Output"> Output
-                    </label>
+            <!--Hardware Information-->
+                <div class="form-group">
+                    <div class="btn-group two-buttons" data-toggle="inputOrOutput-buttons">
+                        <label class="btn btn-option">
+                            <input type="radio" name="inputOrOutput[]" value="Input"> Input
+                        </label>
+                        <label class="btn btn-option">
+                            <input type="radio" name="inputOrOutput[]" value="Output"> Output
+                        </label>
+                    </div>
+                </div>
+                	
+                <div class="form-group">
+                    <label>Signal Direction:</label>
+                    <div class="signal-direction-container">
+                        <select name="icType[]" class="icType" required>
+                            <option value="">Select</option>
+                            <option value="Source">Source</option>
+                            <option value="Sink">Sink IC</option>
+                        </select>
+                        <span class="icType-placeholder" style="display: none; margin-left: 10px;"></span>
+                    </div>
+                        <div class="additional-source-fields" style="display: none;"></div>
+                    </div>
+                    <div class="form-group video-connector-type" style="display: none;">
+                    <label>Video connector type:</label>
+                    <div class="buttons">
+                        <button type="button" class="btn option" data-value="STP">STP</button>
+                        <button type="button" class="btn option" data-value="Coax">Coax</button>
+                        <button type="button" class="btn option" data-value="HMTD">HMTD</button>
+                        <button type="button" class="btn option" data-value="Other">Other</button>
+                    </div>
+                    <div class="video-connector-images" style="margin-top: 10px;">
+                        <img src="images/STP.png" alt="STP" class="video-connector-image">
+                        <img src="images/Coax.png" alt="Coax" class="video-connector-image">
+                        <img src="images/Hmtd.png" alt="HMTD" class="video-connector-image">
+                        <textarea name="otherVideoConnectorType" placeholder="Please specify" style="margin-top: 10px;"></textarea>
+                    </div>
+                </div>
+                <div class="form-group video-connector-pinning" style="display: none;">
+                    <label for="pinningConnector">Pinning of video connector:</label>
+                    <textarea id="pinningConnector" name="pinningConnector" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Power supply of UUT via video cable?</label>
+                    <div class="power-supply-wrapper">
+                        <div class="power-supply-buttons">
+                            <span class="btn-option" data-value="Yes">Yes</span>
+                            <span class="btn-option" data-value="No">No</span>
+                        </div>
+                        <div class="form-group power-supply-details" style="display: none;">
+                            <input type="text" name="voltageCurrentConsumption[]" 
+                            placeholder="Consumption: e.g: 12V / 500mA">
+                        </div>
+                    </div>
+                    <!--Video Parameters-->
+                <br> 
+                <div class="form-group">
+                    <label>Pixel Clock:</label>
+                    <input type="text" name="pixelClock[]" required>
+                </div>
+                <div class="form-group">
+                    <label>Image Width:</label>
+                    <input type="number" name="imageWidth[]" required>
+                </div>
+                <div class="form-group">
+                    <label>Image Height:</label>
+                    <input type="number" name="imageHeight[]" required>
+                </div>
+                <div class="form-group">
+                    <label>Frame Rate:</label>
+                    <input type="number" name="frameRate[]" required>
+                </div>
+                <div class="form-group">
+                    <label>Horizontal Sync Polarity:</label>
+                    <div class="btn-group" data-toggle="horizontal-sync-buttons">
+                        <label class="btn btn-option">
+                            <input type="radio" name="horizontalSyncPolarity[]" value="High"> High
+                        </label>
+                        <label class="btn btn-option">
+                            <input type="radio" name="horizontalSyncPolarity[]" value="Low"> Low
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Vertical Sync Polarity:</label>
+                    <div class="btn-group" data-toggle="vertical-sync-buttons">
+                        <label class="btn btn-option">
+                            <input type="radio" name="verticalSyncPolarity[]" value="High"> High
+                        </label>
+                        <label class="btn btn-option">
+                            <input type="radio" name="verticalSyncPolarity[]" value="Low"> Low
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Data Enable Polarity:</label>
+                    <div class="btn-group" data-toggle="data-enable-buttons">
+                        <label class="btn btn-option">
+                            <input type="radio" name="dataEnablePolarity[]" value="High"> High
+                        </label>
+                        <label class="btn btn-option">
+                            <input type="radio" name="dataEnablePolarity[]" value="Low"> Low
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Pixel Clock Polarity:</label>
+                    <div class="btn-group" data-toggle="pixel-clock-polarity-buttons">
+                        <label class="btn btn-option">
+                            <input type="radio" name="pixelClockPolarity[]" value="High"> High
+                        </label>
+                        <label class="btn btn-option">
+                            <input type="radio" name="pixelClockPolarity[]" value="Low"> Low
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Lock Output Enable:</label>
+                    <div class="btn-group" data-toggle="lock-output-enable-buttons">
+                        <label class="btn btn-option">
+                            <input type="radio" name="lockOutputEnable[]" value="High"> High
+                        </label>
+                        <label class="btn btn-option">
+                            <input type="radio" name="lockOutputEnable[]" value="Low"> Low
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Lock Polarity:</label>
+                    <div class="btn-group" data-toggle="lock-polarity-buttons">
+                        <label class="btn btn-option">
+                            <input type="radio" name="lockPolarity[]" value="High"> High
+                        </label>
+                        <label class="btn btn-option">
+                            <input type="radio" name="lockPolarity[]" value="Low"> Low
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Video Format:</label>
+                    <input type="text" name="videoFormat[]" required>
                 </div>
             </div>
-            <div class="form-group">
-                <label>Signal Direction:</label>
-                <div class="signal-direction-container">
-                    <select name="icType[]" class="icType" required>
+
+                <div class="form-group">
+                    <label for="numberVideo">Number of Video Channels per Stream:</label>
+                    <div class="slider-wrapper">
+                        <input type="number" id="numberVideoChannelsEditable" name="numberVideoChannelsEditable" min="1" max="10" value="1" required style="width: 60px; margin-right: 10px;">
+                        <input type="range" id="numberVideoChannels" name="numberVideoChannels" min="1" max="10" value="1" data-value="1" required>
+                        <span class="slider-display" id="numberVideoChannelsDisplay">1</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Is HDCP used?
+                        <span class="info-tooltip-wrapper">
+                            <span class="info-icon"><span class="info-text">i</span></span>
+                            <span class="tooltip textbox second-tooltip">
+                                HDCP (High-bandwidth Digital Content Protection) is used to prevent unauthorized copying of 
+                                digital content.
+                            </span>
+                        </span>
+                    </label>
+                    <div class="btn-group two-buttons" data-toggle="hdcp-buttons">
+                        <label class="btn btn-option">
+                            <input type="radio" name="hdcpUsed[]" value="Yes"> Yes
+                        </label>
+                        <label class="btn btn-option">
+                            <input type="radio" name="hdcpUsed[]" value="No"> No
+                        </label>
+                    </div>
+                </div>
+
+                <!--Sideband Communication-->
+                <div class="form-group">
+                    <label>Sideband Communication:          
+                        <span class="info-tooltip-wrapper">
+                            <span class="info-icon"><span class="info-text">i</span></span>
+                            <span class="tooltip textbox second-tooltip">
+                                Sideband Communication describes Additional communication channels that can be used alongside the main video signal.
+                                <ul>
+                                    <li><strong>I2C:</strong> Configure camera modules (e.g. resolution, frame rate) over a simple 2-wire connection.</li>
+                                    <li><strong>UART:</strong> Logging or debugging messages from video devices during development.</li>
+                                    <li><strong>SPI:</strong> High-speed interface for transferring control data or syncing between chips in the video path.</li>
+                                    <li><strong>MII:</strong> Transmits Ethernet-based data, sometimes used for camera-to-ECU communication or synchronization.</li>
+                                    <li><strong>CAN:</strong> Common in vehicles to send control signals (e.g. ignition state) or receive system status messages.</li>
+                                </ul>
+                            </span>
+                        </span>
+                    </label>
+                    <div class="sideband-group">
+                        <label class="sideband-option">
+                            <input type="checkbox" name="sideband" value="I2C"> I2C
+                        </label>
+                        <label class="sideband-option">
+                            <input type="checkbox" name="sideband" value="UART"> UART
+                        </label>
+                        <label class="sideband-option">
+                            <input type="checkbox" name="sideband" value="SPI"> SPI
+                        </label>
+                        <label class="sideband-option">
+                            <input type="checkbox" name="sideband" value="MII"> MII
+                        </label>
+                        <label class="sideband-option">
+                            <input type="checkbox" name="sideband" value="CAN"> CAN
+                        </label>
+                    </div>
+                </div>
+
+                <!--Chip dependent Information-->
+                <div class="form-group">
+                    <h3>Chip Manufacturer:</h3>
+                    <select name="chipManufacturer[]" class="chipManufacturer" required>
                         <option value="">Select</option>
-                        <option value="Source">Source</option>
-                        <option value="Sink">Sink IC</option>
+                        <option value="Texas Instruments">Texas Instruments</option>
+                        <option value="APIX">APIX</option>
+                        <option value="Maxim">Maxim</option>
                     </select>
-                    <span class="icType-placeholder" style="display: none; margin-left: 10px;"></span>
-                </div>
-                <div class="additional-source-fields" style="display: none;"></div>
-            </div>
-            <div class="form-group video-connector-type" style="display: none;">
-                <label>Video connector type:</label>
-                <div class="buttons">
-                    <button type="button" class="btn option" data-value="STP">STP</button>
-                    <button type="button" class="btn option" data-value="Coax">Coax</button>
-                    <button type="button" class="btn option" data-value="HMTD">HMTD</button>
-                    <button type="button" class="btn option" data-value="Other">Other</button>
-                </div>
-                <div class="video-connector-images" style="margin-top: 10px;">
-                    <img src="images/STP.png" alt="STP" class="video-connector-image">
-                    <img src="images/Coax.png" alt="Coax" class="video-connector-image">
-                    <img src="images/Hmtd.png" alt="HMTD" class="video-connector-image">
-                    <textarea name="otherVideoConnectorType" placeholder="Please specify" style="margin-top: 10px;"></textarea>
-                </div>
-            </div>
-            <div class="form-group video-connector-pinning" style="display: none;">
-                <label for="pinningConnector">Pinning of video connector:</label>
-                <textarea id="pinningConnector" name="pinningConnector" rows="3"></textarea>
-            </div>
-            <div class="form-group">
-                <label>Power supply of UUT via video cable?</label>
-                <div class="power-supply-wrapper">
-                    <div class="power-supply-buttons">
-                        <span class="btn-option" data-value="Yes">Yes</span>
-                        <span class="btn-option" data-value="No">No</span>
+                    
+                    <hr>
+
+                    <div class="chip-options fpd-options">
+                        <!-- Texas Instruments specific options -->
+                        <div class="form-group">
+                            <label>FPD Link:</label>
+                            <div class="buttons">
+                                <button type="button" class="btn option" data-value="FPD Link II">FPD Link II</button>
+                                <button type="button" class="btn option" data-value="FPD Link III">FPD Link III</button>
+                                <button type="button" class="btn option" data-value="FPD Link IV">FPD Link IV</button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Backward compatible mode:</label>
+                            <div class="buttons">
+                                <button type="button" class="btn option" data-value="Yes">Yes</button>
+                                <button type="button" class="btn option" data-value="No">No</button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Low frequency mode:</label>
+                            <div class="buttons">
+                                <button type="button" class="btn option" data-value="Yes">Yes</button>
+                                <button type="button" class="btn option" data-value="No">No</button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>FPD Link III Transfer Mode:</label>
+                            <div class="buttons">
+                                <button type="button" class="btn option" data-value="Single Lane">Single Lane</button>
+                                <button type="button" class="btn option" data-value="Dual Lane">Dual Lane</button>
+                            </div>
+                        </div>
+                        <div class="form-group textBox">
+                            <label>Additional Information:</label>
+                            <label for="useCase"></label>
+                            <textarea id="useCase" name="useCase" rows="5" required></textarea>
+                        </div>
                     </div>
-                    <div class="form-group power-supply-details" style="display: none;">
-                        <input type="text" name="voltageCurrentConsumption[]" placeholder="Consumption: e.g: 12V / 495mA">
+                    <div class="chip-options apix-options">
+                        <!-- APIX specific options -->
+                        <div class="form-group">
+                            <label>APIX Mode:</label>
+                            <div class="buttons">
+                                <button type="button" class="btn option" data-value="APIX I">APIX I</button>
+                                <button type="button" class="btn option" data-value="APIX II">APIX II</button>
+                                <button type="button" class="btn option" data-value="APIX III">APIX III</button>
+                            </div>
+                        </div>
+                        <div class="form-group textBox">
+                            <label>Additional Information:</label>
+                            <label for="useCase"></label>
+                            <textarea id="useCase" name="useCase" rows="5" required></textarea>
+                        </div>
+                    </div>
+                    <div class="chip-options gmsl-options">
+                        <!-- Maxim specific options -->
+                        <div class="form-group">
+                            <label>GMSL Version:</label>
+                            <div class="buttons">
+                                <button type="button" class="btn option" data-value="GMSL I">GMSL I</button>
+                                <button type="button" class="btn option" data-value="GMSL II">GMSL II</button>
+                                <button type="button" class="btn option" data-value="GMSL III">GMSL III</button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Bus Width:</label>
+                            <div class="buttons">
+                                <button type="button" class="btn option" data-value="24 bit">24 bit</button>
+                                <button type="button" class="btn option" data-value="32 bit">32 bit</button>
+                                <button type="button" class="btn option" data-value="64 bit">64 bit</button>
+                            </div>
+                        </div>
+                        <div class="form-group textBox">
+                            <label>Additional Information:</label>
+                            <label for="useCase"></label>
+                            <textarea id="useCase" name="useCase" rows="5" required></textarea>
+                        </div>
                     </div>
                 </div>
+                <button type="button" class="remove-video-parameter" data-index="1">Remove UUT Video IN/OUT 1</button>
             </div>
-            <div class="form-group">
-                <label>Pixel Clock:</label>
-                <input type="text" name="pixelClock[]" required>
-            </div>
-            <div class="form-group">
-                <label>Image Width:</label>
-                <input type="number" name="imageWidth[]" required>
-            </div>
-            <div class="form-group">
-                <label>Image Height:</label>
-                <input type="number" name="imageHeight[]" required>
-            </div>
-            <div class="form-group">
-                <label>Frame Rate:</label>
-                <input type="number" name="frameRate[]" required>
-            </div>
-            <div class="form-group">
-                <label>Horizontal Sync Polarity:</label>
-                <div class="btn-group" data-toggle="horizontal-sync-buttons">
-                    <label class="btn btn-option">
-                        <input type="radio" name="horizontalSyncPolarity[]" value="High"> High
-                    </label>
-                    <label class="btn btn-option">
-                        <input type="radio" name="horizontalSyncPolarity[]" value="Low"> Low
-                    </label>
-                </div>
-            </div>
-            <div class="form-group">
-                <label>Vertical Sync Polarity:</label>
-                <div class="btn-group" data-toggle="vertical-sync-buttons">
-                    <label class="btn btn-option">
-                        <input type="radio" name="verticalSyncPolarity[]" value="High"> High
-                    </label>
-                    <label class="btn btn-option">
-                        <input type="radio" name="verticalSyncPolarity[]" value="Low"> Low
-                    </label>
-                </div>
-            </div>
-            <div class="form-group">
-                <label>Data Enable Polarity:</label>
-                <div class="btn-group" data-toggle="data-enable-buttons">
-                    <label class="btn btn-option">
-                        <input type="radio" name="dataEnablePolarity[]" value="High"> High
-                    </label>
-                    <label class="btn btn-option">
-                        <input type="radio" name="dataEnablePolarity[]" value="Low"> Low
-                    </label>
-                </div>
-            </div>
-            <div class="form-group">
-                <label>Pixel Clock Polarity:</label>
-                <div class="btn-group" data-toggle="pixel-clock-polarity-buttons">
-                    <label class="btn btn-option">
-                        <input type="radio" name="pixelClockPolarity[]" value="High"> High
-                    </label>
-                    <label class="btn btn-option">
-                        <input type="radio" name="pixelClockPolarity[]" value="Low"> Low
-                    </label>
-                </div>
-            </div>
-            <div class="form-group">
-                <label>Lock Output Enable:</label>
-                <div class="btn-group" data-toggle="lock-output-enable-buttons">
-                    <label class="btn btn-option">
-                        <input type="radio" name="lockOutputEnable[]" value="High"> High
-                    </label>
-                    <label class="btn btn-option">
-                        <input type="radio" name="lockOutputEnable[]" value="Low"> Low
-                    </label>
-                </div>
-            </div>
-            <div class="form-group">
-                <label>Lock Polarity:</label>
-                <div class="btn-group" data-toggle="lock-polarity-buttons">
-                    <label class="btn btn-option">
-                        <input type="radio" name="lockPolarity[]" value="High"> High
-                    </label>
-                    <label class="btn btn-option">
-                        <input type="radio" name="lockPolarity[]" value="Low"> Low
-                    </label>
-                </div>
-            </div>
-            <div class="form-group">
-                <label>Video Format:</label>
-                <input type="text" name="videoFormat[]" required>
-            </div>
-            <div class="form-group">
-                <label>Is HDCP used?</label>
-                <div class="btn-group two-buttons" data-toggle="hdcp-buttons">
-                    <label class="btn btn-option">
-                        <input type="radio" name="hdcpUsed[]" value="Yes"> Yes
-                    </label>
-                    <label class="btn btn-option">
-                        <input type="radio" name="hdcpUsed[]" value="No"> No
-                    </label>
-                </div>
-            </div>
-            <div class="form-group">
-                <label>Sideband Communication:</label>
-                <div class="sideband-group">
-                    <label class="sideband-option">
-                        <input type="checkbox" name="sideband" value="I2C"> I2C
-                    </label>
-                    <label class="sideband-option">
-                        <input type="checkbox" name="sideband" value="UART"> UART
-                    </label>
-                    <label class="sideband-option">
-                        <input type="checkbox" name="sideband" value="SPI"> SPI
-                    </label>
-                    <label class="sideband-option">
-                        <input type="checkbox" name="sideband" value="MII"> MII
-                    </label>
-                    <label class="sideband-option">
-                        <input type="checkbox" name="sideband" value="CAN"> CAN
-                    </label>
-                </div>
-            </div>
-            <div class="form-group">
-                <label for="numberVideo">Number of Video Channels per Stream:</label>
-                <div class="slider-wrapper">
-                    <input type="number" id="numberVideoChannelsEditable" name="numberVideoChannelsEditable" min="1" max="10" value="1" required style="width: 60px; margin-right: 10px;">
-                    <input type="range" id="numberVideoChannels" name="numberVideoChannels" min="1" max="10" value="1" data-value="1" required>
-                    <span class="slider-display" id="numberVideoChannelsDisplay">1</span>
-                </div>
-            </div>
-            <div class="form-group">
-                <h3>Chip Manufacturer:</h3>
-                <select name="chipManufacturer[]" class="chipManufacturer" required>
-                    <option value="">Select</option>
-                    <option value="Texas Instruments">Texas Instruments</option>
-                    <option value="APIX">APIX</option>
-                    <option value="Maxim">Maxim</option>
-                </select>
-            </div>
+        </div>
             <button type="button" class="remove-video-parameter" data-index="${inputOutputCount}">Remove UUT Video IN/OUT ${inputOutputCount}</button>
         `;
         dynamicInputsContainer.appendChild(newInputOutput);
@@ -237,36 +352,60 @@ document.addEventListener("DOMContentLoaded", function () {
                 const powerSupplyGroup = section.querySelector('.power-supply-wrapper');
                 const pinningField = section.querySelector('.video-connector-pinning');
                 const additionalSourceFields = section.querySelector('.additional-source-fields');
+                const chipOptions = section.querySelectorAll('.chip-options');
 
                 if (this.value === 'Source') {
                     placeholder.textContent = 'Serializer';
                     placeholder.style.display = 'flex';
                     if (videoConnectorSection) videoConnectorSection.style.display = "block";
-                    if (powerSupplyGroup && powerSupplyGroup.parentElement)
-                        powerSupplyGroup.parentElement.style.display = "block";
+                    if (powerSupplyGroup) powerSupplyGroup.style.display = "flex";
                     if (pinningField) pinningField.style.display = "block";
                     if (additionalSourceFields) additionalSourceFields.style.display = "block";
+                    chipOptions.forEach(option => option.style.display = "none");
                 } else if (this.value === 'Sink') {
                     placeholder.textContent = 'Deserializer';
                     placeholder.style.display = 'flex';
                     if (videoConnectorSection) videoConnectorSection.style.display = "none";
-                    if (powerSupplyGroup && powerSupplyGroup.parentElement)
-                        powerSupplyGroup.parentElement.style.display = "none";
+                    if (powerSupplyGroup) powerSupplyGroup.style.display = "none";
                     if (pinningField) pinningField.style.display = "none";
                     if (additionalSourceFields) additionalSourceFields.style.display = "none";
+                    chipOptions.forEach(option => option.style.display = "none");
                 } else {
                     placeholder.textContent = '';
                     placeholder.style.display = 'none';
                     if (videoConnectorSection) videoConnectorSection.style.display = "none";
-                    if (powerSupplyGroup && powerSupplyGroup.parentElement)
-                        powerSupplyGroup.parentElement.style.display = "none";
+                    if (powerSupplyGroup) powerSupplyGroup.style.display = "none";
                     if (pinningField) pinningField.style.display = "none";
                     if (additionalSourceFields) additionalSourceFields.style.display = "none";
+                    chipOptions.forEach(option => option.style.display = "none");
                 }
             });
             icTypeSelect.dispatchEvent(new Event('change'));
         } else {
             console.log("IC Type select not found!");
+        }
+
+        // Chip Manufacturer Selection
+        const chipManufacturerSelect = section.querySelector('.chipManufacturer');
+        if (chipManufacturerSelect) {
+            chipManufacturerSelect.addEventListener('change', function () {
+                const chipOptions = section.querySelectorAll('.chip-options');
+                chipOptions.forEach(option => option.style.display = "none");
+
+                if (this.value === "Texas Instruments") {
+                    const fpdOptions = section.querySelector(".fpd-options");
+                    if (fpdOptions) fpdOptions.style.display = "block";
+                } else if (this.value === "APIX") {
+                    const apixOptions = section.querySelector(".apix-options");
+                    if (apixOptions) apixOptions.style.display = "block";
+                } else if (this.value === "Maxim") {
+                    const gmslOptions = section.querySelector(".gmsl-options");
+                    if (gmslOptions) gmslOptions.style.display = "block";
+                }
+            });
+            chipManufacturerSelect.dispatchEvent(new Event('change'));
+        } else {
+            console.log("Chip Manufacturer select not found!");
         }
 
         // Power Supply Toggle
@@ -290,18 +429,6 @@ document.addEventListener("DOMContentLoaded", function () {
             });
         } else {
             console.log("Power supply buttons NOT found!");
-        }
-
-        // Chip Manufacturer Selection
-        const chipManufacturerSelect = section.querySelector('.chipManufacturer');
-        if (chipManufacturerSelect) {
-            chipManufacturerSelect.selectedIndex = 0; // Force first option ("Select") as default
-            chipManufacturerSelect.addEventListener('change', function () {
-                updateChipOptions(this);
-            });
-
-            // Run updateChipOptions immediately to hide elements on first load
-            updateChipOptions(chipManufacturerSelect);
         }
 
         // Video Connector Type Selection

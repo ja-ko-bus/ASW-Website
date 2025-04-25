@@ -1,56 +1,12 @@
 	ATS Sales Website
 
-index.html - main webpage
-style.css - webpage style
-script.js - interactions
-
----------------------------------------------------------------------------------------------
-	Additions:
-- technical contact person selection (email) 
-
-- Komprimierung?? (DSC)
-
-- Erklärungen -> FAQ / "often asked questions" / wiki
-
-----------------------------------------------------------------------------------------------------
-	Bilder/Logos einfügen:
-	
-- Box(GigE) / PCIe Card / PXIe Card
-
-----------------------------------------------------------------------------------------------------
-	Erklärungen: 
-	
-- hardware format general use case 
-	(bsp: pcie = general purpose, high speed / pxie = modular test, high performance)
-	
-- signal direction 
-	(source / sink )
--> video connector type for source with .png 
-
-- power supply UUT Video Cable
-	(Why would it be useful? When do I need that?)
-	
-- pixel clock, image width/height, etc
-	(is it really necessary to ask or can we automate that?)
-
-- frame rate 
-	(30 or 60? Use case)
-	
-- HDCP 
-	(What is it? Would I need that?)
-	
-----------------------------------------------------------------------------------------------------
-
--> pinning 
--> textfeld chip manu ✓
--> gmsl: seitenbandkanäle (pt1/2)
--> gmsl 2+: tunnelling / RoR
--> streams anzahl pro link?
-
-
-Gespräch: 
-- Ansprechpartner Vertrieb Referenz -> html 
-- direkt per Email (sales / support)
-- auch an Sales schicken
-- tooltips white mode
+Änderungen: 
+- tooltips (white mode)
 - error message source
+- Überarbeitung Benutzeroberfläche
+- Pdf name: Datum / customer name
+- Link personalisieren (https://videodragon.com/asw-checklist.pdf/goepel-Mitarbeiter
+- fix 3rd page print
+
+
+
