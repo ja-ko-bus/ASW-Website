@@ -1,12 +1,13 @@
 	ATS Sales Website
 
 Änderungen: 
-- tooltips (white mode)
+- tooltips (white mode) ✓
 - error message source
 - Überarbeitung Benutzeroberfläche
 - Pdf name: Datum / customer name
 - Link personalisieren (https://videodragon.com/asw-checklist.pdf/goepel-Mitarbeiter
 - fix 3rd page print
+- uut video in/out 2 source/sink settings
 
 
 
