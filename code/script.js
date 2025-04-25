@@ -673,7 +673,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         if (chipManufacturer === "Texas Instruments") {
-            const backwardCompatibilityButtons = parameterContainer.querySelectorAll('.fpd-options .btn.option[data-value="Yes"], .fpd-options .btn.option[data-value="No"]');
+            const backwardCompatibilityButtons = parameterContainer.querySelectorAll('.fpd-options .btn.option[data-value="Yes"],.fpd-options .btn.option[data-value="No"]');
             if (backwardCompatibilityButtons.length > 0) {
                 backwardCompatibilityButtons.forEach(button => {
                     button.addEventListener("click", function () {

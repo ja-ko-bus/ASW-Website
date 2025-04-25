@@ -1284,7 +1284,7 @@ button, .btn, .btn-option, .chip-options .btn.option {
     justify-content: space-between;
     gap: 10px;
     width: 100%;
-    max-width: 600px; /* Match the form group width */
+    max-width: 600px; 
     margin: 0 auto;
 }
 
