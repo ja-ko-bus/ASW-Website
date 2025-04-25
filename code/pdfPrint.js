@@ -1,15 +1,28 @@
-// PDF Print function
-
-async function generatePDF(formData, additionalPdfPaths) {
+export async function generatePDF(formData, additionalPdfPaths) {
     
     window.generatePDF = generatePDF;
 
-    const chipManufacturer = formData.chipManufacturer.replace(/\s+/g, ''); 
-    const sinkOrSource = formData.sinkOrSource || 'Unknown';
+    const chipManufacturer = formData.chipManufacturer?.trim() || 'Unknown';
+    const sinkOrSource = formData.sinkOrSource?.trim() || 'Unknown';
+
+    const isUUTVideoSelected = document.querySelectorAll('.dynamic-input-output').length > 0;
+
+    if (!isUUTVideoSelected) {
+        alert('You must add at least one "UUT Video IN/OUT" to proceed.');
+        return;
+    }
+
+    if (chipManufacturer === 'Unknown' && sinkOrSource === 'Unknown') {
+        console.error('Both chip manufacturer and sink/source are unknown. Cannot generate dynamic PDF.');
+        return;
+    }
+
     const dynamicPdfPath = `./files/print/Checklist_${chipManufacturer}_${sinkOrSource}_UUT.pdf`;
 
+    console.log(`Generated PDF Path: ${dynamicPdfPath}`); 
     const dynamicPdfResponse = await fetch(dynamicPdfPath);
     if (!dynamicPdfResponse.ok) {
+        console.error(`Failed to fetch PDF at path: ${dynamicPdfPath}. Please check if the file exists.`);
         return;
     }
     const dynamicPdfData = await dynamicPdfResponse.arrayBuffer();
@@ -17,6 +30,25 @@ async function generatePDF(formData, additionalPdfPaths) {
 
     // Define pdfDoc for the dynamically loaded PDF
     const pdfDoc = dynamicPdfDoc;
+
+    if ((!chipManufacturer || chipManufacturer === 'Unknown') && (!sinkOrSource || sinkOrSource === 'Unknown')) {
+        console.log('Both chip manufacturer and sink/source are missing or invalid. Printing Checklist_firstPage.');
+        const firstPagePath = './files/print/Checklist_firstPage.pdf';
+        const firstPageResponse = await fetch(firstPagePath);
+        if (!firstPageResponse.ok) {
+            console.error('Failed to fetch Checklist_firstPage.pdf.');
+            return;
+        }
+        const firstPageData = await firstPageResponse.arrayBuffer();
+        const firstPageDoc = await PDFLib.PDFDocument.load(firstPageData);
+        const pdfBytes = await firstPageDoc.save();
+        const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'Checklist_firstPage.pdf';
+        link.click();
+        return;
+    }
 
     // Always add the first page from Checklist_firstPage.pdf
     const firstPagePath = './files/print/Checklist_firstPage.pdf';
@@ -456,249 +488,6 @@ async function generatePDF(formData, additionalPdfPaths) {
                 'SPI': { yes: { x: 324, y: 284 }, no: { x: 446, y: 284 } },
                 'MII': { yes: { x: 324, y: 267 }, no: { x: 446, y: 267 } },
                 'CAN': { yes: { x: 324, y: 250 }, no: { x: 446, y: 250 } },
-            };
-
-            sidebandOptions.forEach((option) => {
-                const isSelected = document.querySelector(`input[name="sideband"][value="${option}"]:checked`) !== null;
-
-                if (isSelected) {
-                    currentPage.drawText('X', {
-                        ...sidebandPositions[option].yes,
-                        size: 12,
-                        font: sourceSansProFont,
-                        color: fontColor,
-                    });
-                } else {
-                    // Print 'X' for "No" position
-                    currentPage.drawText('X', {
-                        ...sidebandPositions[option].no,
-                        size: 12,
-                        font: sourceSansProFont,
-                        color: fontColor,
-                    });
-                }
-            });
-
-            // Chip Manufacturer
-            const chipManufacturer = document.querySelector('select[name="chipManufacturer[]"]')?.value;
-            if (chipManufacturer) {
-                const chipOptions = {
-                    /* Texas Instruments */
-                    'Texas Instruments': () => {
-                        const fpdOptions = document.querySelectorAll('.fpd-options .btn.option.active');
-                        if (fpdOptions.length === 0) {
-                        } else {
-                            fpdOptions.forEach((option) => {
-                                const fpdValue = option.dataset.value;
-                                const fdpPositions = {
-                                    'FPD Link II': { x: 324, y: 216 },
-                                    'FPD Link III': { x: 409, y: 216 },
-                                    'FPD Link IV': { x: 495, y: 216 },
-                                };
-
-                                if (fdpPositions[fpdValue]) {
-                                    currentPage.drawText('X', {
-                                        ...fdpPositions[fpdValue],
-                                        size: 12,
-                                        font: sourceSansProFont,
-                                        color: fontColor,
-                                    });
-                                } else {
-                                }
-                            });
-                        }
-
-                        // Backward Compatible Mode
-                        const backwardCompatibleMode = document.querySelector('.fpd-options .btn.option.active[data-value="Yes"]') ? 'Yes' :
-                            document.querySelector('.fpd-options .btn.option.active[data-value="No"]') ? 'No' : 'Not Provided';
-                        const backwardCompatiblePositions = {
-                            'Yes': { x: 324, y: 198 },
-                            'No': { x: 446, y: 198 },
-                        };
-                        if (backwardCompatibleMode in backwardCompatiblePositions) {
-                            currentPage.drawText('X', {
-                                ...backwardCompatiblePositions[backwardCompatibleMode],
-                                size: 12,
-                                font: sourceSansProFont,
-                                color: fontColor,
-                            });
-                        }
-
-                        // Low Frequency Mode
-                        const lowFrequencyMode = document.querySelector('.fpd-options .btn.option.active[data-value="Yes"]') ? 'Yes' :
-                            document.querySelector('.fpd-options .btn.option.active[data-value="No"]') ? 'No' : 'Not Provided';
-                        const lowFrequencyPositions = {
-                            'Yes': { x: 324, y: 181 },
-                            'No': { x: 446, y: 181 },
-                        };
-                        if (lowFrequencyMode in lowFrequencyPositions) {
-                            currentPage.drawText('X', {
-                                ...lowFrequencyPositions[lowFrequencyMode],
-                                size: 12,
-                                font: sourceSansProFont,
-                                color: fontColor,
-                            });
-                        }
-
-                        // Transfer Mode
-                        const transferMode = document.querySelector('.fpd-options .btn.option.active[data-value="Single Lane"]') ? 'Single Lane' :
-                            document.querySelector('.fpd-options .btn.option.active[data-value="Dual Lane"]') ? 'Dual Lane' : 'Not Provided';
-                        const transferModePositions = {
-                            'Single Lane': { x: 324, y: 164 },
-                            'Dual Lane': { x: 446, y: 164 },
-                        };
-                        if (transferMode in transferModePositions) {
-                            currentPage.drawText('X', {
-                                ...transferModePositions[transferMode],
-                                size: 12,
-                                font: sourceSansProFont,
-                                color: fontColor,
-                            });
-                        }
-                    },
-
-                    /* APIX */
-                    'APIX': () => {
-                        const apixOptions = document.querySelectorAll('.apix-options .btn.option.active');
-
-                        if (apixOptions.length === 0) {
-                            return;
-                        }
-
-                        const apixPositions = {
-                            'APIX I': { x: 324, y: 216 },
-                            'APIX II': { x: 409, y: 216 },
-                            'APIX III': { x: 495, y: 216 },
-                        };
-
-                        apixOptions.forEach((option) => {
-                            const apixValue = option.dataset.value;
-                            if (apixPositions[apixValue]) {
-                                currentPage.drawText('X', {
-                                    ...apixPositions[apixValue],
-                                    size: 12,
-                                    font: sourceSansProFont,
-                                    color: fontColor,
-                                });
-                            } else {
-                            }
-                        });
-                    },
-
-                    /* Maxim */
-                    'Maxim': () => {
-                        const gmslOptions = document.querySelectorAll('.gmsl-options .btn.option.active');
-                        if (gmslOptions.length === 0) {
-                        } else {
-                            gmslOptions.forEach((option) => {
-                                const gmslValue = option.dataset.value;
-                                const gmslPositions = {
-                                    'GMSL I': { x: 324, y: 216 },
-                                    'GMSL II': { x: 409, y: 216 },
-                                    'GMSL III': { x: 495, y: 216 },
-                                };
-
-                                if (gmslValue in gmslPositions) {
-                                    currentPage.drawText('X', {
-                                        ...gmslPositions[gmslValue],
-                                        size: 12,
-                                        font: sourceSansProFont,
-                                        color: fontColor,
-                                    });
-                                } else {
-                                }
-                            });
-                        }
-
-                        // Bus Width
-                        const busWidth = document.querySelector('.gmsl-options .btn.option.active[data-value="24 bit"]') ? '24 bit' :
-                            document.querySelector('.gmsl-options .btn.option.active[data-value="32 bit"]') ? '32 bit' :
-                                document.querySelector('.gmsl-options .btn.option.active[data-value="64 bit"]') ? '64 bit' : 'Not Provided';
-                        const busWidthPositions = {
-                            '24 bit': { x: 324, y: 199 },
-                            '32 bit': { x: 409, y: 199 },
-                            '64 bit': { x: 495, y: 199 },
-                        };
-                        if (busWidth in busWidthPositions) {
-                            currentPage.drawText('X', {
-                                ...busWidthPositions[busWidth],
-                                size: 12,
-                                font: sourceSansProFont,
-                                color: fontColor,
-                            });
-                        }
-                    },
-                };
-
-                if (chipManufacturer in chipOptions) {
-                    chipOptions[chipManufacturer]();
-                } else {
-                }
-            } else {
-            }
-
-            // Additional Information
-            const additionalInformation = document.getElementById('useCase')?.value || 'Additional Information Not Provided';
-            const additionalInfoPositions = {
-                'Texas Instruments': { x: 324, y: 148 },
-                'APIX': { x: 324, y: 197 },
-                'Maxim': { x: 324, y: 180 },
-            };
-
-            if (chipManufacturer in additionalInfoPositions) {
-                currentPage.drawText(`${additionalInformation}`, {
-                    ...additionalInfoPositions[chipManufacturer],
-                    size: 10,
-                    font: sourceSansProFont,
-                    color: fontColor,
-                });
-            } else {
-            }
-        } else {
-            currentPage.drawText('Sink IC (Deserializer)', {
-                x: 324,
-                y: 676,
-                size: fontSize,
-                font: sourceSansProFont,
-                color: fontColor,
-            });
-
-            const numberVideoChannels = document.getElementById('numberVideoChannelsEditable')?.value || 'Not Provided';
-            currentPage.drawText(`${numberVideoChannels}`, {
-                x: 324,
-                y: 659,
-                size: fontSize,
-                font: sourceSansProFont,
-                color: fontColor,
-            });
-
-            const hdcpUsed = document.querySelector('input[name="hdcpUsed[]"]:checked')?.value || '';
-            if (hdcpUsed === 'Yes') {
-                currentPage.drawText('X', {
-                    x: 324,
-                    y: 641,
-                    size: 12,
-                    font: sourceSansProFont,
-                    color: fontColor,
-                });
-            } else if (hdcpUsed === 'No') {
-                currentPage.drawText('X', {
-                    x: 446,
-                    y: 641,
-                    size: 12,
-                    font: sourceSansProFont,
-                    color: fontColor,
-                });
-            }
-
-            // Sideband
-            const sidebandOptions = ['I2C', 'UART', 'SPI', 'MII', 'CAN'];
-            const sidebandPositions = {
-                'I2C': { yes: { x: 324, y: 624 }, no: { x: 446, y: 624 } },
-                'UART': { yes: { x: 324, y: 608 }, no: { x: 446, y: 608 } },
-                'SPI': { yes: { x: 324, y: 591 }, no: { x: 446, y: 591 } },
-                'MII': { yes: { x: 324, y: 574 }, no: { x: 446, y: 574 } },
-                'CAN': { yes: { x: 324, y: 557 }, no: { x: 446, y: 557 } },
             };
 
             sidebandOptions.forEach((option) => {

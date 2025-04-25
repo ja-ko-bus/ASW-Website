@@ -1,5 +1,8 @@
-// Logo Setup
+import { generatePDF } from './pdfPrint.js'; // Move import to the top level
+window.generatePDF = generatePDF;
+
 document.addEventListener("DOMContentLoaded", function () {
+    // Logo Setup
     const logoContainer = document.createElement("div");
     logoContainer.className = "logo-container";
 
@@ -326,7 +329,6 @@ document.addEventListener("DOMContentLoaded", function () {
                         </div>
                     </div>
                 </div>
-                <button type="button" class="remove-video-parameter" data-index="1">Remove UUT Video IN/OUT 1</button>
             </div>
         </div>
             <button type="button" class="remove-video-parameter" data-index="${inputOutputCount}">Remove UUT Video IN/OUT ${inputOutputCount}</button>
@@ -350,34 +352,44 @@ document.addEventListener("DOMContentLoaded", function () {
                 const placeholder = section.querySelector('.signal-direction-container .icType-placeholder');
                 const videoConnectorSection = section.querySelector('.video-connector-type');
                 const powerSupplyGroup = section.querySelector('.power-supply-wrapper');
+                const powerSupplyContainer = powerSupplyGroup?.closest('.form-group'); // Ensure the entire container is hidden
                 const pinningField = section.querySelector('.video-connector-pinning');
                 const additionalSourceFields = section.querySelector('.additional-source-fields');
                 const chipOptions = section.querySelectorAll('.chip-options');
+                const pixelClockToVideoFormat = section.querySelectorAll(
+                    '[name="pixelClock[]"], [name="imageWidth[]"], [name="imageHeight[]"], [name="frameRate[]"], [data-toggle="horizontal-sync-buttons"], [data-toggle="vertical-sync-buttons"], [data-toggle="data-enable-buttons"], [data-toggle="pixel-clock-polarity-buttons"], [data-toggle="lock-output-enable-buttons"], [data-toggle="lock-polarity-buttons"]'
+                );
 
                 if (this.value === 'Source') {
                     placeholder.textContent = 'Serializer';
                     placeholder.style.display = 'flex';
                     if (videoConnectorSection) videoConnectorSection.style.display = "block";
                     if (powerSupplyGroup) powerSupplyGroup.style.display = "flex";
+                    if (powerSupplyContainer) powerSupplyContainer.style.display = "block";
                     if (pinningField) pinningField.style.display = "block";
                     if (additionalSourceFields) additionalSourceFields.style.display = "block";
                     chipOptions.forEach(option => option.style.display = "none");
+                    pixelClockToVideoFormat.forEach(el => el.closest('.form-group').style.display = "block");
                 } else if (this.value === 'Sink') {
                     placeholder.textContent = 'Deserializer';
                     placeholder.style.display = 'flex';
                     if (videoConnectorSection) videoConnectorSection.style.display = "none";
                     if (powerSupplyGroup) powerSupplyGroup.style.display = "none";
+                    if (powerSupplyContainer) powerSupplyContainer.style.display = "none";
                     if (pinningField) pinningField.style.display = "none";
                     if (additionalSourceFields) additionalSourceFields.style.display = "none";
                     chipOptions.forEach(option => option.style.display = "none");
+                    pixelClockToVideoFormat.forEach(el => el.closest('.form-group').style.display = "none");
                 } else {
                     placeholder.textContent = '';
                     placeholder.style.display = 'none';
                     if (videoConnectorSection) videoConnectorSection.style.display = "none";
                     if (powerSupplyGroup) powerSupplyGroup.style.display = "none";
+                    if (powerSupplyContainer) powerSupplyContainer.style.display = "none";
                     if (pinningField) pinningField.style.display = "none";
                     if (additionalSourceFields) additionalSourceFields.style.display = "none";
                     chipOptions.forEach(option => option.style.display = "none");
+                    pixelClockToVideoFormat.forEach(el => el.closest('.form-group').style.display = "none");
                 }
             });
             icTypeSelect.dispatchEvent(new Event('change'));
@@ -962,20 +974,10 @@ document.addEventListener("DOMContentLoaded", function () {
             plannedQuantity
         };
 
+        console.log('Form Data:', formData); // Debugging log
+
         const additionalPdfPaths = [];
-
-        visibleInputs.forEach(input => {
-            if (!input.value.trim()) {
-                input.classList.add('error-highlight');
-                hasErrors = true;
-            }
-        });
-
-        if (!hasErrors) {
-            await generatePDF(formData, additionalPdfPaths);
-        } else if (firstErrorElement) {
-            firstErrorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
+        await generatePDF(formData, additionalPdfPaths);
     });
 
     document.getElementById('submitForm').addEventListener('click', function () {
@@ -1028,8 +1030,8 @@ document.addEventListener("DOMContentLoaded", function () {
                         group.querySelectorAll(".btn-option").forEach(btn => btn.style.color = "");
                     }
                 } else {
-                    group.querySelectorAll(".btn-option").forEach(btn => btn.classList.remove("active"));
-                    button.classList.add("active");
+                    group.querySelectorAll(".btn-option").forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
                     group.querySelectorAll(".btn-option").forEach(btn => btn.style.color = "");
                 }
             });
