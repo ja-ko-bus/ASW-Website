@@ -117,7 +117,8 @@ export async function generatePDF(formData, additionalPdfPaths) {
         color: fontColor,
     });
 
-    const testHardwareFormat = document.querySelector('input[name="testHardwareFormat[]"]:checked')?.value || '';
+    const testHardwareFormat = document.querySelector
+    ('input[name="testHardwareFormat[]"]:checked')?.value || '';
     const hardwareFormatPositions = {
         'Box (GigE)': { x: 328, y: 477 },
         'PCIe Card': { x: 412, y: 477 },

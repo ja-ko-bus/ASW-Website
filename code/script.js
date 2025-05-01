@@ -1,4 +1,4 @@
-import { generatePDF } from './pdfPrint.js'; // Move import to the top level
+import { generatePDF } from './pdfPrint.js';
 window.generatePDF = generatePDF;
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -940,17 +940,14 @@ document.addEventListener("DOMContentLoaded", function () {
                 hasErrors = true;
             }
         });
-
         if (hasErrors) {
             highlightErrors(); 
             return; 
         }
-
         const userConfirmed = confirm("Submitting form, are you sure?");
         if (!userConfirmed) {
             return; 
         }
-
         console.log("Submit button clicked");
 
         document.querySelectorAll('.error-highlight').forEach(el => el.classList.remove('error-highlight'));
@@ -963,7 +960,6 @@ document.addEventListener("DOMContentLoaded", function () {
         const projectTitle = document.getElementById('projectTitle')?.value || '';
         const useCase = document.getElementById('useCase')?.value || '';
         const plannedQuantity = document.getElementById('plannedQuantityEditable')?.value || '';
-
         const formData = {
             chipManufacturer,
             sinkOrSource,
@@ -974,8 +970,7 @@ document.addEventListener("DOMContentLoaded", function () {
             plannedQuantity
         };
 
-        console.log('Form Data:', formData); // Debugging log
-
+        console.log('Form Data:', formData);
         const additionalPdfPaths = [];
         await generatePDF(formData, additionalPdfPaths);
     });

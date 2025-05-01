@@ -23,6 +23,8 @@ Aufbau{
 		- Ergebnisse und Schwierigkeiten 
 	]
 	Fazit 
+	Quellenverzeichnis
+	Ehrenwörtliche Erklärung
 }
 
 -------------------------------------------------------------------------------------------------
@@ -91,3 +93,6 @@ Hauptteil
 Glossar:
 - Dropdown Menu
 
+
+Changes:
+Kapitel () wenn erwähnt bevor Teil kam
